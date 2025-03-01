@@ -34,6 +34,14 @@ class Point {
     this.x = x;
     this.y = y;
   }
+
+  isIntersectP(point) {
+    // TODO
+  }
+
+  isIntersectA(area) {
+    return this.x >= area.x && this.x <= area.x + area.wid && this.y >= area.y && this.y <= area.y + area.hei;
+  }
 }
 
 class Area {
@@ -50,13 +58,27 @@ class Area {
   }
 
   isIntersectP(point) {
-    return point.x > this.x && point.x < this.x + this.wid && point.y > this.y && point.y < this.y + this.hei;
+    return point.x >= this.x && point.x <= this.x + this.wid && point.y >= this.y && point.y <= this.y + this.hei;
   }
 
   isIntersectA(area) {
     // TODO
   }
 }
+
+// class MouseEvent extends Point {
+//   isPressed;
+//   wasPressed;
+//   modifiers;
+
+//   constructor(x, y, isPressed, wasPressed, modifiers) {
+//     super(x, y);
+//     // this.button = button;
+//     this.isPressed = isPressed;
+//     this.wasPressed = wasPressed;
+//     this.modifiers = modifiers;
+//   }
+// }
 
 class Click extends Point {
   button;
@@ -104,9 +126,9 @@ class Box extends Area {
 
 class BoundingBox extends Area {
   active = false;
-  boxes = [];
+  // boxes = [];
 
-  constructor(x, y, wid, hei, active) {
+  constructor(x, y, wid, hei, active = false) {
     super(x, y, wid, hei);
     this.active = active;
   }
@@ -137,4 +159,126 @@ class BoundingBox extends Area {
       this.active = false;
     }
   }
+}
+
+class SelectionBox extends Area {
+  active = false;
+
+  constructor(x, y, wid, hei, active = false) {
+    super(x, y, wid, hei);
+    this.active = active;
+  }
+
+  init(click) {
+    this.x = click.x;
+    this.y = click.y;
+    this.wid = 0;
+    this.hei = 0;
+
+    this.active = true;
+  }
+
+  scaleTo(click) {
+    this.wid = click.x - this.x;
+    this.hei = click.y - this.y;
+  }
+
+  getInBounds(scene) {
+    let bounds = new Area(this.x + Math.min(0, this.wid), this.y + Math.min(0, this.hei), Math.abs(this.wid), Math.abs(this.hei));
+    let out = [];
+    for (let elem of scene) {
+      if (bounds.isIntersectA(elem)) {
+        out.push(elem);
+      }
+    }
+    return out;
+  }
+
+  addInBoundsToSelectionList(scene, selectionList) {
+    let bounds = new Area(this.x + Math.min(0, this.wid), this.y + Math.min(0, this.hei), Math.abs(this.wid), Math.abs(this.hei));
+    for (let elem of scene) {
+      if (bounds.isIntersectA(elem)) {
+        selectionList.addElem(scene, elem);
+      }
+    }
+  }
+}
+
+class LLNode {
+  next = null;
+  previous = null;
+  elem = null;
+  parent = null;
+
+  constructor(elem = null, parent = null) {
+    this.elem = elem;
+    this.parent = parent;
+  }
+
+  // destruct() { // apperantly these arent needed https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_management#mark-and-sweep_algorithm
+  //   this.previous = null;
+  //   let next = this.next;
+  //   this.next = null;
+  //   next.destruct();
+  // }
+
+  insertBefore(node) {
+    this.previous = node.previous;
+    this.next = node;
+    node.previous = this;
+    if (this.previous) {
+      this.previous.next = this;
+    }
+  }
+
+  // append to end of linkedList
+  appendE() {
+    this.last = this.parent.last;
+    this.parent.last = this;
+    this.last.next = this;
+  }
+}
+
+class LinkedList {
+  first = null;
+  last = null;
+  length = 0;
+
+  constructor() {
+    this.first = null;
+    this.last = null;
+    this.length = 0;
+  }
+
+  // destruct() {
+  //   this.first.destruct();
+  //   this.first = null;
+  //   this.last = null;
+  // }
+
+  appendE(elem) {
+
+  }
+}
+
+class SelectionList {
+  elems;
+  indeces;
+
+  constructor() {
+    this.elems = [];
+    this.indeces = [];
+  }
+
+  clear() {
+    this.elems = [];
+    this.indeces = [];
+  }
+
+  addElem(elems, index) {
+    this.elems.push(elems[index]);
+    this.indeces.push(index);
+  }
+
+
 }

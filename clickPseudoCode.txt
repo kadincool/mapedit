@@ -1,0 +1,34 @@
+if mainMode == select:
+  onclick:
+    if inBoundingBox:
+      actionMode = move;
+    else:
+      initSelection();
+      actionMode = select;
+
+// actions
+if actionMode == select:
+  drag:
+    if farFromStart:
+      selectionBox.setActive();
+      selectionBox.corner = mousePos;
+  release:
+    if !ctrl:
+      selection = [];
+    if selectionBox:
+      selection.push(getSelBoxIntersect());
+    else:
+      selection.push(topMostElem);
+
+if actionMode == move:
+  drag:
+    if farFromStart:
+      moveSelection();
+  release:
+    snapSelection();
+
+
+if selectionBox:
+  higlight(getSelBoxIntersect());
+else:
+  higlight(topMostElem);

@@ -12,15 +12,20 @@ function frame() {
 frame();
 
 document.addEventListener("mousedown", (e) => {
-  onClick(new Click(e.offsetX, e.offsetY, e.button, keys.ControlLeft * 1));
+  e.preventDefault();
+  onClick(new Click(e.offsetX, e.offsetY, e.button, quickBitfield(keys.ControlLeft)));
 });
 
 document.addEventListener("mouseup", (e) => {
-  onRelease(new Click(e.offsetX, e.offsetY, e.button, keys.ControlLeft * 1));
+  onRelease(new Click(e.offsetX, e.offsetY, e.button, quickBitfield(keys.ControlLeft)));
 });
 
+document.addEventListener("contextmenu", (e) => {
+  e.preventDefault();
+})
+
 document.addEventListener("mousemove", (e) => {
-  onMove(new Drag(e.offsetX, e.offsetY, e.movementX, e.movementY, e.button, keys.ControlLeft * 1));
+  onMove(new Drag(e.offsetX, e.offsetY, e.movementX, e.movementY, e.button, quickBitfield(keys.ControlLeft)));
 });
 
 document.addEventListener("keydown", (e) => {keys[e.code] = true});
