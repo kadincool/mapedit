@@ -5,7 +5,8 @@ let startClick = null;
 const modeList = ["select", "move", "scale"];
 
 let ui = [];
-let elems = [];
+// let elems = [];
+let elems = new LinkedList();
 let selected = [];
 let selectionBox = new SelectionBox();
 let boundingBox = new BoundingBox();
@@ -13,14 +14,15 @@ let cam = new Camera(0, 0, 32);
 
 let clicked = false;
 
-// elems.push(new Box(0, 0, 200, 10));
-// elems.push(new Box(0, 10, 200, 10));
-// elems.push(new Box(0, 20, 200, 10));
-// elems.push(new Box(0, 30, 200, 10));
-elems.push(new Box(0, 0, 20, 1));
-elems.push(new Box(0, 1, 20, 1));
-elems.push(new Box(0, 2, 20, 1));
-elems.push(new Box(0, 3, 20, 1));
+// elems.push(new Box(0, 0, 20, 1));
+// elems.push(new Box(0, 1, 20, 1));
+// elems.push(new Box(0, 2, 20, 1));
+// elems.push(new Box(0, 3, 20, 1));
+elems.append(new Box(0, 0, 20, 1));
+elems.append(new Box(0, 2, 20, 1));
+elems.append(new Box(0, 4, 20, 1));
+elems.append(new Box(0, 6, 20, 1));
+
 
 function drawFrame(can2d) {
   can2d.fillStyle = "lightGray";
@@ -61,48 +63,11 @@ function onClick(click) {
   if (mainMode == 0) {
     if (true) { // not in bounding box
       selectionBox.init(click);
-      // selectionBox.active = true;
       actionMode = 0;
     } else {
       actionMode = 1;
     }
   }
-  // if (mode == 0) {
-  //   // if no control and clicked in bounding box, drag
-  //   if (!(click.modifiers & 0x1) && boundingBox.active && boundingBox.isIntersectP(click)) {
-  //     mode = 1;
-  //   } else {
-  //     // empty if not multi select
-  //     if (!(click.modifiers & 0x1)) selected = [];
-  //     // select clicked
-  //     for (let elem of elems) {
-  //       if (elem.isIntersectP(click)) {
-  //         if (!(click.modifiers & 0x1)) selected = [];
-  //         if (selected.includes(elem)) {
-  //           selected.splice(selected.indexOf(elem), 1);
-  //         } else {
-  //           selected.push(elem);
-  //         }
-  //         if (!(click.modifiers & 0x1)) break;
-  //       }
-  //     }
-  //   }
-  //   boundingBox.setBounds(selected);
-  // } if (mode == 1) {
-  //   if (selected.length == 0) {
-  //     // select clicked
-  //     for (let elem of elems) {
-  //       if (elem.isIntersectP(click)) {
-  //         if (selected.includes(elem)) {
-  //           selected.splice(selected.indexOf(elem), 1);
-  //         } else {
-  //           selected.push(elem);
-  //         }
-  //         break;
-  //       }
-  //     }
-  //   }
-  // }
 }
 
 function onRelease(click) {
@@ -112,15 +77,6 @@ function onRelease(click) {
     // selected
     selectionBox.active = false;
   }
-//   if (mode == 1) {
-//     console.log("drag end");
-//     for (let elem of selected) {
-//       elem.x = Math.round(elem.x);
-//       elem.y = Math.round(elem.y);
-//     }
-//     mode = 0;
-//     boundingBox.setBounds(selected);
-//   }
 }
 
 function onMove(drag) {
@@ -131,12 +87,4 @@ function onMove(drag) {
   if (actionMode == 0) {
     selectionBox.scaleTo(drag);
   }
-//   if (mode == 1) {
-//     for (let elem of selected) {
-//       elem.x += drag.offX;
-//       elem.y += drag.offY;
-//     }
-//     boundingBox.setBounds(selected);
-//     // mode = 0;
-//   }
 }

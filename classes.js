@@ -66,20 +66,6 @@ class Area {
   }
 }
 
-// class MouseEvent extends Point {
-//   isPressed;
-//   wasPressed;
-//   modifiers;
-
-//   constructor(x, y, isPressed, wasPressed, modifiers) {
-//     super(x, y);
-//     // this.button = button;
-//     this.isPressed = isPressed;
-//     this.wasPressed = wasPressed;
-//     this.modifiers = modifiers;
-//   }
-// }
-
 class Click extends Point {
   button;
   modifiers;
@@ -207,22 +193,15 @@ class SelectionBox extends Area {
 class LLNode {
   next = null;
   previous = null;
-  elem = null;
+  value = null;
   parent = null;
 
-  constructor(elem = null, parent = null) {
-    this.elem = elem;
-    this.parent = parent;
+  constructor(value) {
+    this.value = value;
   }
 
-  // destruct() { // apperantly these arent needed https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_management#mark-and-sweep_algorithm
-  //   this.previous = null;
-  //   let next = this.next;
-  //   this.next = null;
-  //   next.destruct();
-  // }
-
   insertBefore(node) {
+    this.parent = node.parent;
     this.previous = node.previous;
     this.next = node;
     node.previous = this;
@@ -231,11 +210,45 @@ class LLNode {
     }
   }
 
+  insertAfter(node) {
+    this.parent = node.parent;
+    this.next = node.next;
+    this.previous = node;
+    node.next = this;
+    if (this.next) {
+      this.next.previous = this;
+    }
+  }
+
+  // append to beginning of linkedList
+  appendB(parent) {
+    this.parent = parent;
+    this.next = this.parent.first;
+    this.parent.first = this;
+    if (this.next) {
+      this.next.last = this;
+    } else {
+      this.parent.last = this;
+    }
+  }
+
   // append to end of linkedList
-  appendE() {
+  appendE(parent) {
+    this.parent = parent;
     this.last = this.parent.last;
     this.parent.last = this;
-    this.last.next = this;
+    if (this.last) {
+      this.last.next = this;
+    } else {
+      this.parent.first = this;
+    }
+  }
+
+  splice() {
+    if (this.next) this.next.previous = this.previous;
+    if (this.previous) this.previous.next = this.next;
+    this.previous = null;
+    this.next = null;
   }
 }
 
@@ -244,20 +257,46 @@ class LinkedList {
   last = null;
   length = 0;
 
-  constructor() {
+  constructor(vals) {
     this.first = null;
     this.last = null;
     this.length = 0;
+
+    if (vals != undefined) {
+      for (let val of vals) {
+        this.append(val);
+      }
+    }
   }
 
-  // destruct() {
-  //   this.first.destruct();
-  //   this.first = null;
-  //   this.last = null;
-  // }
+  prepend(elem) {
+    new LLNode(elem).appendB(this);
+  }
 
-  appendE(elem) {
+  append(elem) {
+    new LLNode(elem).appendE(this);
+  }
 
+  listAll() {
+    let node = this.first;
+    while (node != null) {
+      console.log(node.value);
+      node = node.next;
+    }
+  }
+
+  [Symbol.iterator]() {
+    let current = this.first;
+    return {
+      next() {
+        if (current == null) {
+          return {done: true};
+        }
+        let out = current.value;
+        current = current.next;
+        return {value: out, done: false};
+      }
+    }
   }
 }
 
@@ -279,6 +318,4 @@ class SelectionList {
     this.elems.push(elems[index]);
     this.indeces.push(index);
   }
-
-
 }
