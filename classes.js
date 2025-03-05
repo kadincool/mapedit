@@ -284,6 +284,22 @@ class LinkedList {
       node = node.next;
     }
   }
+  
+  getAll(exp, giveNodes = false) {
+    let out = new LinkedList();
+    let node = this.first;
+    while (node != null) {
+      if (exp(node.value)) {
+        if (giveNodes) {
+          out.append(node);
+        } else {
+          out.append(node.value);
+        }
+      }
+      node = node.next;
+    }
+    return out;
+  }
 
   [Symbol.iterator]() {
     let current = this.first;
