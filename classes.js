@@ -62,7 +62,7 @@ class Area {
   }
 
   isIntersectA(area) {
-    // TODO
+    return area.x + area.wid > this.x && area.x < this.x + this.wid && area.y + area.hei > this.y && area.y < this.y + this.hei;
   }
 }
 
@@ -168,6 +168,17 @@ class SelectionBox extends Area {
     this.wid = click.x - this.x;
     this.hei = click.y - this.y;
   }
+  
+  makePositive() {
+    this.x += Math.min(0, this.wid);
+    this.y += Math.min(0, this.hei);
+    this.wid = Math.abs(this.wid);
+    this.hei = Math.abs(this.hei);
+  }
+  
+  getArea() {
+    return new Area(this.x + Math.min(0, this.wid), this.y + Math.min(0, this.hei), Math.abs(this.wid), Math.abs(this.hei));
+  }
 
   getInBounds(scene) {
     let bounds = new Area(this.x + Math.min(0, this.wid), this.y + Math.min(0, this.hei), Math.abs(this.wid), Math.abs(this.hei));
@@ -226,7 +237,7 @@ class LLNode {
     this.next = this.parent.first;
     this.parent.first = this;
     if (this.next) {
-      this.next.last = this;
+      this.next.previous = this;
     } else {
       this.parent.last = this;
     }
@@ -235,20 +246,29 @@ class LLNode {
   // append to end of linkedList
   appendE(parent) {
     this.parent = parent;
-    this.last = this.parent.last;
+    this.previous = this.parent.last;
     this.parent.last = this;
-    if (this.last) {
-      this.last.next = this;
+    if (this.previous) {
+      this.previous.next = this;
     } else {
       this.parent.first = this;
     }
   }
 
   splice() {
-    if (this.next) this.next.previous = this.previous;
-    if (this.previous) this.previous.next = this.next;
+    if (this.next) {
+      this.next.previous = this.previous;
+    } else {
+      this.parent.last = this.last; 
+    }
+    if (this.previous) {
+      this.previous.next = this.next;
+    } else {
+      this.parent.first = this.next;
+    }
     this.previous = null;
     this.next = null;
+    this.parent = null;
   }
 }
 
@@ -276,6 +296,12 @@ class LinkedList {
   append(elem) {
     new LLNode(elem).appendE(this);
   }
+  
+  appendM(list) {
+    for (elem of list) {
+      
+    }
+  }
 
   listAll() {
     let node = this.first;
@@ -300,6 +326,18 @@ class LinkedList {
     }
     return out;
   }
+  
+  clearAll() {
+    let node = this.first;
+    while (node != null) {
+      let next = node.next;
+      node.next = null;
+      node.previous = null;
+      node = next;
+    }
+    this.first = null;
+    this.last = null;
+  }
 
   [Symbol.iterator]() {
     let current = this.first;
@@ -312,6 +350,18 @@ class LinkedList {
         current = current.next;
         return {value: out, done: false};
       }
+    }
+  }
+  
+  reverseIterate(exp) {
+    let node = this.last;
+    while (node != null) {
+      let val = exp(node.value);
+      if (val !== undefined ) {
+        return val;
+      }
+      console.log(node.previous);
+      node = node.previous;
     }
   }
 }

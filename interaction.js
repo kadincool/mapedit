@@ -8,6 +8,7 @@ let ui = [];
 // let elems = [];
 let elems = new LinkedList();
 let selected = [];
+let hover = new LinkedList();
 let selectionBox = new SelectionBox();
 let boundingBox = new BoundingBox();
 let cam = new Camera(0, 0, 32);
@@ -30,7 +31,7 @@ function drawFrame(can2d) {
   
   for (let elem of elems) {
     can2d.fillStyle = "black";
-    if (selected.includes(elem)) can2d.fillStyle = "dimgray";
+    // if (selected.includes(elem)) can2d.fillStyle = "dimgray";
     drawArea(can2d, elem);
   }
 
@@ -62,7 +63,7 @@ function onClick(click) {
   click.transformByCam(cam);
   if (mainMode == 0) {
     if (true) { // not in bounding box
-      selectionBox.init(click);
+      // selectionBox.init(click);
       actionMode = 0;
     } else {
       actionMode = 1;
@@ -70,21 +71,36 @@ function onClick(click) {
   }
 }
 
-function onRelease(click) {
-  startClick = null;
-  click.transformByCam(cam);
-  if (actionMode == 0) {
-    // selected
-    selectionBox.active = false;
-  }
-}
-
 function onMove(drag) {
   drag.transformByCam(cam);
+  hover.clearAll();
+  if (selectionBox.active) {
+    
+  } else {
+    // let topMost = elems.reverseIter()
+  }
+  // only run on click
   if (startClick == null) {
     return;
   }
   if (actionMode == 0) {
     selectionBox.scaleTo(drag);
+  }
+}
+
+function onRelease(click) {
+  startClick = null;
+  click.transformByCam(cam);
+  if (actionMode == 0) {
+    if (selectionBox.active) {
+      // select whole box
+      let selectionArea = selectionBox.getArea();
+      console.log("Selection:");
+      elems.getAll((e) => {return selectionArea.isIntersectA(e)}).listAll();
+      selectionBox.active = false;
+    } else {
+      console.log("Selection:");
+      elems.getAll((e) => {return click.isIntersectA(e)}).listAll();
+    }
   }
 }
