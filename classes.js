@@ -297,7 +297,7 @@ class LinkedList {
     new LLNode(elem).appendE(this);
   }
   
-  appendM(list) {
+  appendM(list) { // TODO
     for (elem of list) {
       
     }
@@ -327,6 +327,16 @@ class LinkedList {
     return out;
   }
   
+  appendIfNew(elem) {
+    for (let val of this) {
+      if (val == elem) {
+        return false;
+      }
+    }
+    this.append(elem);
+    return true;
+  }
+  
   clearAll() {
     let node = this.first;
     while (node != null) {
@@ -337,6 +347,15 @@ class LinkedList {
     }
     this.first = null;
     this.last = null;
+  }
+
+  includes(elem) {
+    for (let val of this) {
+      if (val == elem) {
+        return true;
+      }
+    }
+    return false;
   }
 
   [Symbol.iterator]() {
@@ -360,7 +379,6 @@ class LinkedList {
       if (val !== undefined ) {
         return val;
       }
-      console.log(node.previous);
       node = node.previous;
     }
   }

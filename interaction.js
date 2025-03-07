@@ -31,7 +31,8 @@ function drawFrame(can2d) {
   
   for (let elem of elems) {
     can2d.fillStyle = "black";
-    // if (selected.includes(elem)) can2d.fillStyle = "dimgray";
+    if (hover.includes(elem)) can2d.fillStyle = "#3f3f3f";
+    // if (hover.includes(elem)) can2d.fillStyle = "dimgray";
     drawArea(can2d, elem);
   }
 
@@ -77,7 +78,11 @@ function onMove(drag) {
   if (selectionBox.active) {
     
   } else {
-    // let topMost = elems.reverseIter()
+    let topMost = elems.reverseIterate((e) => {
+      if (drag.isIntersectA(e)) return e;
+    });
+    // console.log(topMost);
+    hover.append(topMost);
   }
   // only run on click
   if (startClick == null) {
