@@ -112,7 +112,7 @@ class Box extends Area {
 
 class BoundingBox extends Area {
   active = false;
-  // boxes = [];
+  boxes = new LinkedList();
 
   constructor(x, y, wid, hei, active = false) {
     super(x, y, wid, hei);
@@ -124,22 +124,22 @@ class BoundingBox extends Area {
     if (boxes.length > 0) {
       this.active = true;
 
-      this.x = boxes[0].x;
-      this.y = boxes[0].y;
-      this.wid = boxes[0].wid;
-      this.hei = boxes[0].hei;
+      this.x = boxes.first.value.x;
+      this.y = boxes.first.value.y;
+      this.wid = boxes.first.value.wid;
+      this.hei = boxes.first.value.hei;
 
-      for (let i = 1; i < boxes.length; i++) {
-        if (boxes[i].x < this.x) {
-          this.wid += this.x - boxes[i].x;
-          this.x = boxes[i].x;
+      for (let box of boxes) {
+        if (box.x < this.x) {
+          this.wid += this.x - box.x;
+          this.x = box.x;
         }
-        if (boxes[i].y < this.y) {
-          this.hei += this.y - boxes[i].y;
-          this.y = boxes[i].y;
+        if (box.y < this.y) {
+          this.hei += this.y - box.y;
+          this.y = box.y;
         }
-        if (boxes[i].x + boxes[i].wid > this.x + this.wid) this.wid += boxes[i].x + boxes[i].wid - (this.x + this.wid);
-        if (boxes[i].y + boxes[i].hei > this.y + this.hei) this.hei += boxes[i].y + boxes[i].hei - (this.y + this.hei);
+        if (box.x + box.wid > this.x + this.wid) this.wid += box.x + box.wid - (this.x + this.wid);
+        if (box.y + box.hei > this.y + this.hei) this.hei += box.y + box.hei - (this.y + this.hei);
       }
     } else {
       this.active = false;
@@ -212,6 +212,7 @@ class LLNode {
   }
 
   insertBefore(node) {
+    if (this.parent) this.parent.length--;
     this.parent = node.parent;
     this.previous = node.previous;
     this.next = node;
@@ -219,9 +220,11 @@ class LLNode {
     if (this.previous) {
       this.previous.next = this;
     }
+    if (this.parent) this.parent.length++;
   }
 
   insertAfter(node) {
+    if (this.parent) this.parent.length--;
     this.parent = node.parent;
     this.next = node.next;
     this.previous = node;
@@ -229,10 +232,12 @@ class LLNode {
     if (this.next) {
       this.next.previous = this;
     }
+    if (this.parent) this.parent.length++;
   }
 
   // append to beginning of linkedList
   appendB(parent) {
+    if (this.parent) this.parent.length--;
     this.parent = parent;
     this.next = this.parent.first;
     this.parent.first = this;
@@ -241,10 +246,12 @@ class LLNode {
     } else {
       this.parent.last = this;
     }
+    if (this.parent) this.parent.length++;
   }
 
   // append to end of linkedList
   appendE(parent) {
+    if (this.parent) this.parent.length--;
     this.parent = parent;
     this.previous = this.parent.last;
     this.parent.last = this;
@@ -253,9 +260,11 @@ class LLNode {
     } else {
       this.parent.first = this;
     }
+    if (this.parent) this.parent.length++;
   }
 
   splice() {
+    if (this.parent) this.parent.length--;
     if (this.next) {
       this.next.previous = this.previous;
     } else {
@@ -283,9 +292,7 @@ class LinkedList {
     this.length = 0;
 
     if (vals != undefined) {
-      for (let val of vals) {
-        this.append(val);
-      }
+      this.appendM(vals);
     }
   }
 
@@ -297,9 +304,9 @@ class LinkedList {
     new LLNode(elem).appendE(this);
   }
   
-  appendM(list) { // TODO
-    for (elem of list) {
-      
+  appendM(list) {
+    for (let elem of list) {
+      this.append(elem);
     }
   }
 
@@ -335,6 +342,12 @@ class LinkedList {
     }
     this.append(elem);
     return true;
+  }
+
+  appendIfNewM(list) {
+    for (let elem of list) {
+      this.appendIfNew(elem);
+    }
   }
   
   clearAll() {

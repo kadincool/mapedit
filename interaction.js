@@ -7,7 +7,7 @@ const modeList = ["select", "move", "scale"];
 let ui = [];
 // let elems = [];
 let elems = new LinkedList();
-let selected = [];
+let selected = new LinkedList();
 let hover = new LinkedList();
 let selectionBox = new SelectionBox();
 let boundingBox = new BoundingBox();
@@ -32,13 +32,13 @@ function drawFrame(can2d) {
   for (let elem of elems) {
     can2d.fillStyle = "black";
     if (hover.includes(elem)) can2d.fillStyle = "#3f3f3f";
-    // if (hover.includes(elem)) can2d.fillStyle = "dimgray";
+    if (selected.includes(elem)) can2d.fillStyle = "dimgray";
     drawArea(can2d, elem);
   }
 
   can2d.strokeStyle = "blue";
   can2d.lineWidth = 2;
-  // if (boundingBox.active) can2d.strokeRect(boundingBox.x, boundingBox.y, boundingBox.wid, boundingBox.hei);
+  if (boundingBox.active) can2d.strokeRect(boundingBox.x, boundingBox.y, boundingBox.wid, boundingBox.hei);
   if (boundingBox.active) strokeArea(can2d, boundingBox);
   if (selectionBox.active) strokeArea(can2d, selectionBox);
   // strokeArea(can2d, selectionBox);
@@ -64,7 +64,7 @@ function onClick(click) {
   click.transformByCam(cam);
   if (mainMode == 0) {
     if (true) { // not in bounding box
-      // selectionBox.init(click);
+      selectionBox.init(click);
       actionMode = 0;
     } else {
       actionMode = 1;
@@ -76,10 +76,15 @@ function onMove(drag) {
   drag.transformByCam(cam);
   hover.clearAll();
   if (selectionBox.active) {
-    
+    let selectionArea = selectionBox.getArea();
+    for (let elem of elems) {
+      if (selectionArea.isIntersectA(elem)) {
+        hover.append(elem);
+      }
+    }
   } else {
-    let topMost = elems.reverseIterate((e) => {
-      if (drag.isIntersectA(e)) return e;
+    let topMost = elems.reverseIterate((elem) => {
+      if (drag.isIntersectA(elem)) return elem;
     });
     // console.log(topMost);
     hover.append(topMost);
@@ -102,10 +107,12 @@ function onRelease(click) {
       let selectionArea = selectionBox.getArea();
       console.log("Selection:");
       elems.getAll((e) => {return selectionArea.isIntersectA(e)}).listAll();
+      selected = elems.getAll((e) => {return selectionArea.isIntersectA(e)});
       selectionBox.active = false;
     } else {
       console.log("Selection:");
       elems.getAll((e) => {return click.isIntersectA(e)}).listAll();
     }
+    boundingBox.setBounds(selected);
   }
 }
