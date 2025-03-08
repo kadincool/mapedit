@@ -356,10 +356,12 @@ class LinkedList {
       let next = node.next;
       node.next = null;
       node.previous = null;
+      this.length -= 1;
       node = next;
     }
     this.first = null;
     this.last = null;
+    if (this.length != 0) console.error("something may have gone wrong");
   }
 
   includes(elem) {

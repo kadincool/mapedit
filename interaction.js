@@ -38,7 +38,7 @@ function drawFrame(can2d) {
 
   can2d.strokeStyle = "blue";
   can2d.lineWidth = 2;
-  if (boundingBox.active) can2d.strokeRect(boundingBox.x, boundingBox.y, boundingBox.wid, boundingBox.hei);
+  // if (boundingBox.active) can2d.strokeRect(boundingBox.x, boundingBox.y, boundingBox.wid, boundingBox.hei);
   if (boundingBox.active) strokeArea(can2d, boundingBox);
   if (selectionBox.active) strokeArea(can2d, selectionBox);
   // strokeArea(can2d, selectionBox);
@@ -64,7 +64,7 @@ function onClick(click) {
   click.transformByCam(cam);
   if (mainMode == 0) {
     if (true) { // not in bounding box
-      selectionBox.init(click);
+      // selectionBox.init(click);
       actionMode = 0;
     } else {
       actionMode = 1;
@@ -75,6 +75,44 @@ function onClick(click) {
 function onMove(drag) {
   drag.transformByCam(cam);
   hover.clearAll();
+  if (startClick == null) {
+    // not clicked
+    if (actionMode == 0) {
+      highlightHovered(drag);
+    }
+  } else {
+    //clicked
+    if (actionMode == 0) {
+      if (!selectionBox.active) {
+        
+      }
+      selectionBox.scaleTo(drag);
+      highlightHovered(drag);
+    }
+  }
+}
+
+function onRelease(click) {
+  click.transformByCam(cam);
+  if (actionMode == 0) {
+    if (!checkBitfield(startClick.modifiers, 0)) selected.clearAll();
+    if (selectionBox.active) {
+      // select whole box
+      let selectionArea = selectionBox.getArea();
+      selected.appendM(elems.getAll((e) => {return selectionArea.isIntersectA(e)}));
+      selectionBox.active = false;
+    } else {
+      let topMost = elems.reverseIterate((elem) => {
+        if (click.isIntersectA(elem)) return elem;
+      });
+      if (topMost) selected.append(topMost);
+    }
+    boundingBox.setBounds(selected);
+  }
+  startClick = null;
+}
+
+function highlightHovered(drag) {
   if (selectionBox.active) {
     let selectionArea = selectionBox.getArea();
     for (let elem of elems) {
@@ -87,32 +125,6 @@ function onMove(drag) {
       if (drag.isIntersectA(elem)) return elem;
     });
     // console.log(topMost);
-    hover.append(topMost);
-  }
-  // only run on click
-  if (startClick == null) {
-    return;
-  }
-  if (actionMode == 0) {
-    selectionBox.scaleTo(drag);
-  }
-}
-
-function onRelease(click) {
-  startClick = null;
-  click.transformByCam(cam);
-  if (actionMode == 0) {
-    if (selectionBox.active) {
-      // select whole box
-      let selectionArea = selectionBox.getArea();
-      console.log("Selection:");
-      elems.getAll((e) => {return selectionArea.isIntersectA(e)}).listAll();
-      selected = elems.getAll((e) => {return selectionArea.isIntersectA(e)});
-      selectionBox.active = false;
-    } else {
-      console.log("Selection:");
-      elems.getAll((e) => {return click.isIntersectA(e)}).listAll();
-    }
-    boundingBox.setBounds(selected);
+    if (topMost) hover.append(topMost);
   }
 }
