@@ -103,6 +103,13 @@ class Drag extends Click {
 class Box extends Area {
   type;
 
+  snap() {
+    this.x = Math.round(this.x);
+    this.y = Math.round(this.y);
+    this.wid = Math.round(this.wid);
+    this.hei = Math.round(this.hei);
+  }
+
   constructor(x, y, wid, hei, type = 0) {
     super(x, y, wid, hei);
     this.type = type;

@@ -63,7 +63,7 @@ function onClick(click) {
   startClick = click;
   click.transformByCam(cam);
   if (mainMode == 0) {
-    if (!checkBitfield(click.modifiers, 0) && !boundingBox.isIntersectP(cam.screenToWorldP(click))) { // not in bounding box
+    if (checkBitfield(click.modifiers, 0) || !(boundingBox.active && boundingBox.isIntersectP(click))) { // not in bounding box
       // selectionBox.init(click);
       actionMode = 0;
     } else {
@@ -90,6 +90,14 @@ function onMove(drag) {
       }
       selectionBox.scaleTo(drag);
       highlightHovered(drag);
+    } else if (actionMode == 1) {
+      for (let elem of selected) {
+        elem.x += drag.offX;
+        elem.y += drag.offY;
+      }
+      // boundingBox.x += drag.offX;
+      // boundingBox.y += drag.offY;
+      boundingBox.setBounds(selected);
     }
   }
 }
@@ -98,6 +106,7 @@ function onRelease(click) {
   click.transformByCam(cam);
   if (actionMode == 0) {
     if (!checkBitfield(click.modifiers, 0)) selected.clearAll();
+    // TODO remove if all values are in selected
     if (selectionBox.active) {
       // select whole box
       let selectionArea = selectionBox.getArea();
@@ -108,6 +117,11 @@ function onRelease(click) {
         if (click.isIntersectA(elem)) return elem;
       });
       if (topMost) selected.append(topMost);
+    }
+    boundingBox.setBounds(selected);
+  } else if (actionMode == 1) {
+    for (let elem of selected) {
+      elem.snap();
     }
     boundingBox.setBounds(selected);
   }
