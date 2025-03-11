@@ -63,7 +63,7 @@ function onClick(click) {
   startClick = click;
   click.transformByCam(cam);
   if (mainMode == 0) {
-    if (true) { // not in bounding box
+    if (!checkBitfield(click.modifiers, 0) && !boundingBox.isIntersectP(cam.screenToWorldP(click))) { // not in bounding box
       // selectionBox.init(click);
       actionMode = 0;
     } else {
@@ -84,7 +84,9 @@ function onMove(drag) {
     //clicked
     if (actionMode == 0) {
       if (!selectionBox.active) {
-        
+        if (pointDist(startClick, drag, cam) >= 10) {
+          selectionBox.init(startClick);
+        }
       }
       selectionBox.scaleTo(drag);
       highlightHovered(drag);
@@ -95,7 +97,7 @@ function onMove(drag) {
 function onRelease(click) {
   click.transformByCam(cam);
   if (actionMode == 0) {
-    if (!checkBitfield(startClick.modifiers, 0)) selected.clearAll();
+    if (!checkBitfield(click.modifiers, 0)) selected.clearAll();
     if (selectionBox.active) {
       // select whole box
       let selectionArea = selectionBox.getArea();

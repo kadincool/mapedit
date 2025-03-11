@@ -17,11 +17,11 @@ class Camera {
     return new Area((area.x - this.x) * this.scale, (area.y - this.y) * this.scale, area.wid * this.scale, area.hei * this.scale);
   }
 
-  ScreenToWorldP(point) {
+  screenToWorldP(point) {
     return new Point(point.x / this.scale + this.x, point.y / this.scale + this.y);
   }
 
-  ScreenToWorldA(area) {
+  screenToWorldA(area) {
     return new Area(area.x / this.scale + this.x, area.y / this.scale + this.y, this.wid / camera.scale, this.hei / camera.scale);
   }
 }
@@ -77,7 +77,7 @@ class Click extends Point {
   }
 
   transformByCam(cam) {
-    let transformed = cam.ScreenToWorldP(this);
+    let transformed = cam.screenToWorldP(this);
     this.x = transformed.x;
     this.y = transformed.y;
   }
