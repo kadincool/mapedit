@@ -1,6 +1,7 @@
 // let mode = 0;
 let mainMode = 0;
 let actionMode = 0;
+let pan = false;
 let startClick = null;
 const modeList = ["select", "move", "scale"];
 
@@ -28,6 +29,17 @@ elems.append(new Box(0, 6, 20, 1));
 function drawFrame(can2d) {
   can2d.fillStyle = "lightGray";
   can2d.fillRect(0, 0, can2d.canvas.width, can2d.canvas.height);
+
+  let origin = cam.worldToScreenP(new Point(0, 0));
+  can2d.strokeStyle = "gray";
+  can2d.lineWidth = 2;
+  
+  can2d.beginPath();
+  can2d.moveTo(origin.x, 0);
+  can2d.lineTo(origin.x, can2d.canvas.height);
+  can2d.moveTo(0, origin.y);
+  can2d.lineTo(can2d.canvas.width, origin.y);
+  can2d.stroke();
   
   for (let elem of elems) {
     can2d.fillStyle = "black";
@@ -60,21 +72,36 @@ function strokeArea(can2d, area) {
 
 function onClick(click) {
   // if (startClick != null) return;
-  startClick = click;
-  click.transformByCam(cam);
-  if (mainMode == 0) {
-    if (checkBitfield(click.modifiers, 0) || !(boundingBox.active && boundingBox.isIntersectP(click))) { // not in bounding box
-      // selectionBox.init(click);
-      actionMode = 0;
-    } else {
-      actionMode = 1;
+  if (click.button == 0) {
+    //Primary click
+    startClick = click;
+    click.transformByCam(cam);
+    if (mainMode == 0) {
+      if (checkBitfield(click.modifiers, 0) || !(boundingBox.active && boundingBox.isIntersectP(click))) { // not in bounding box
+        // selectionBox.init(click);
+        actionMode = 0;
+      } else {
+        actionMode = 1;
+      }
     }
+  } else if (click.button == 2) {
+    //Secondary click
+    startClick = click;
+  } else if (click.button == 1) {
+    //Tertiary click
+    pan = true;
   }
 }
 
 function onMove(drag) {
   drag.transformByCam(cam);
   hover.clearAll();
+  if (pan) {
+    cam.x -= drag.offX;
+    cam.y -= drag.offY;
+    drag.offX = 0;
+    drag.offY = 0;
+  }
   if (startClick == null) {
     // not clicked
     if (actionMode == 0) {
@@ -104,28 +131,37 @@ function onMove(drag) {
 
 function onRelease(click) {
   click.transformByCam(cam);
-  if (actionMode == 0) {
-    if (!checkBitfield(click.modifiers, 0)) selected.clearAll();
-    // TODO remove if all values are in selected
-    if (selectionBox.active) {
-      // select whole box
-      let selectionArea = selectionBox.getArea();
-      selected.appendM(elems.getAll((e) => {return selectionArea.isIntersectA(e)}));
-      selectionBox.active = false;
-    } else {
-      let topMost = elems.reverseIterate((elem) => {
-        if (click.isIntersectA(elem)) return elem;
-      });
-      if (topMost) selected.append(topMost);
+  if (click.button == 0) {
+    // Primary click
+    if (actionMode == 0) {
+      if (!checkBitfield(click.modifiers, 0)) selected.clearAll();
+      // TODO remove if all values are in selected
+      if (selectionBox.active) {
+        // select whole box
+        let selectionArea = selectionBox.getArea();
+        selected.appendM(elems.getAll((e) => {return selectionArea.isIntersectA(e)}));
+        selectionBox.active = false;
+      } else {
+        let topMost = elems.reverseIterate((elem) => {
+          if (click.isIntersectA(elem)) return elem;
+        });
+        if (topMost) selected.append(topMost);
+      }
+      boundingBox.setBounds(selected);
+    } else if (actionMode == 1) {
+      for (let elem of selected) {
+        elem.snap();
+      }
+      boundingBox.setBounds(selected);
     }
-    boundingBox.setBounds(selected);
-  } else if (actionMode == 1) {
-    for (let elem of selected) {
-      elem.snap();
-    }
-    boundingBox.setBounds(selected);
+    startClick = null;
+  } else if (click.button == 2) {
+    //Secondary click
+    startClick = null;
+  } else if (click.button == 1) {
+    //Tertiary click
+    pan = false;
   }
-  startClick = null;
 }
 
 function highlightHovered(drag) {
@@ -142,5 +178,16 @@ function highlightHovered(drag) {
     });
     // console.log(topMost);
     if (topMost) hover.append(topMost);
+  }
+}
+
+function zoom(amount) {
+  while (amount > 0) {
+    cam.scale = Math.min(cam.scale * 2, 128);
+    amount -= 1;
+  }
+  while (amount < 0) {
+    cam.scale = Math.min(cam.scale / 2, 0.25);
+    amount += 1;
   }
 }
