@@ -20,7 +20,7 @@ document.addEventListener("mouseup", (e) => {
   onRelease(new Click(e.offsetX, e.offsetY, e.button, quickBitfield(keys.ControlLeft)));
 });
 
-document.addEventListener("scroll", (e) => {console.log(e)});
+document.addEventListener("wheel", (e) => {zoom(e.wheelDelta)});
 
 document.addEventListener("contextmenu", (e) => {
   e.preventDefault();

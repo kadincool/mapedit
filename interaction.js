@@ -86,7 +86,7 @@ function onClick(click) {
     }
   } else if (click.button == 2) {
     //Secondary click
-    startClick = click;
+    // startClick = click;
   } else if (click.button == 1) {
     //Tertiary click
     pan = true;
@@ -182,12 +182,12 @@ function highlightHovered(drag) {
 }
 
 function zoom(amount) {
-  while (amount > 0) {
+  if (amount > 0) while (amount > 0) {
     cam.scale = Math.min(cam.scale * 2, 128);
-    amount -= 1;
+    amount -= 500;
   }
-  while (amount < 0) {
-    cam.scale = Math.min(cam.scale / 2, 0.25);
-    amount += 1;
+  else if (amount < 0) while (amount < 0) {
+    cam.scale = Math.max(cam.scale / 2, 0.25);
+    amount += 500;
   }
 }
