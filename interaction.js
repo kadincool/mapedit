@@ -69,7 +69,7 @@ function strokeArea(can2d, area) {
   let transformed = cam.worldToScreenA(area);
   can2d.strokeRect(transformed.x, transformed.y, transformed.wid, transformed.hei);
 }
-
+// URGENT TODO: make less janky
 function onClick(click) {
   if (click.button == 0) {
     if (startClick != null) return;
