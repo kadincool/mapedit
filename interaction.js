@@ -3,7 +3,7 @@ let mainMode = 0;
 let actionMode = 0;
 let pan = false;
 let startClick = null;
-const modeList = ["select", "move", "scale"];
+const modeList = ["select", "move", "scale", "make"];
 
 let ui = [];
 // let elems = [];
@@ -71,8 +71,8 @@ function strokeArea(can2d, area) {
 }
 
 function onClick(click) {
-  // if (startClick != null) return;
   if (click.button == 0) {
+    if (startClick != null) return;
     //Primary click
     startClick = click;
     click.transformByCam(cam);
@@ -86,7 +86,17 @@ function onClick(click) {
     }
   } else if (click.button == 2) {
     //Secondary click
-    // startClick = click;
+    if (startClick != null) return;
+    actionMode = 3;
+    click.transformByCam(cam);
+    // make a box and make it selected
+    let box = new Box(Math.round(click.x), Math.round(click.y), 0, 0);
+    elems.append(box);
+    selected.clearAll();
+    selected.append(box);
+    // perform move action
+    selected.first.value.scaleTo(click);
+    startClick = click;
   } else if (click.button == 1) {
     //Tertiary click
     pan = true;
@@ -125,13 +135,16 @@ function onMove(drag) {
       // boundingBox.x += drag.offX;
       // boundingBox.y += drag.offY;
       boundingBox.setBounds(selected);
+    } else if (actionMode == 3) {
+      // console.log("hallo");
+      selected.first.value.scaleTo(drag);
     }
   }
 }
 
 function onRelease(click) {
   click.transformByCam(cam);
-  if (click.button == 0) {
+  if (startClick && click.button == startClick.button) { //ensure clicks line up
     // Primary click
     if (actionMode == 0) {
       if (!checkBitfield(click.modifiers, 0)) selected.clearAll();
@@ -153,10 +166,9 @@ function onRelease(click) {
         elem.snap();
       }
       boundingBox.setBounds(selected);
+    } else if (actionMode == 3) {
+      selected.first.value.snap();
     }
-    startClick = null;
-  } else if (click.button == 2) {
-    //Secondary click
     startClick = null;
   } else if (click.button == 1) {
     //Tertiary click

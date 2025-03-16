@@ -64,6 +64,11 @@ class Area {
   isIntersectA(area) {
     return area.x + area.wid > this.x && area.x < this.x + this.wid && area.y + area.hei > this.y && area.y < this.y + this.hei;
   }
+
+  scaleTo(point) {
+    this.wid = point.x - this.x;
+    this.hei = point.y - this.y;
+  }
 }
 
 class Click extends Point {
@@ -104,10 +109,10 @@ class Box extends Area {
   type;
 
   snap() {
-    this.x = Math.round(this.x);
-    this.y = Math.round(this.y);
-    this.wid = Math.round(this.wid);
-    this.hei = Math.round(this.hei);
+    this.x = Math.round(this.x + Math.min(this.wid, 0));
+    this.y = Math.round(this.y + Math.min(this.hei, 0));
+    this.wid = Math.round(Math.abs(this.wid));
+    this.hei = Math.round(Math.abs(this.hei));
   }
 
   constructor(x, y, wid, hei, type = 0) {
@@ -169,11 +174,6 @@ class SelectionBox extends Area {
     this.hei = 0;
 
     this.active = true;
-  }
-
-  scaleTo(click) {
-    this.wid = click.x - this.x;
-    this.hei = click.y - this.y;
   }
   
   makePositive() {
