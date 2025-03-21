@@ -107,19 +107,64 @@ class Drag extends Click {
 
 class Box extends Area {
   type;
+  offX;
+  offY;
+  offW;
+  offH;
 
-  snap() {
-    this.x = Math.round(this.x + Math.min(this.wid, 0));
-    this.y = Math.round(this.y + Math.min(this.hei, 0));
-    this.wid = Math.round(Math.abs(this.wid));
-    this.hei = Math.round(Math.abs(this.hei));
+  snap(clearOff = true) {
+    let newX = Math.round(this.x + this.offX + Math.min(this.wid + this.offW, 0));
+    let newY = Math.round(this.y + this.offY + Math.min(this.hei + this.offH, 0));
+    let newW = Math.round(Math.abs(this.wid + this.offW));
+    let newH = Math.round(Math.abs(this.hei + this.offH));
+    if (clearOff) {
+      this.offX = 0;
+      this.offY = 0;
+      this.offW = 0;
+      this.offH = 0;
+    } else {
+      this.offX -= newX - this.x;
+      this.offY -= newY - this.y;
+      this.offW -= newW - this.wid;
+      this.offH -= newH - this.hei;
+    }
+    this.x = newX;
+    this.y = newY;
+    this.wid = newW;
+    this.hei = newH;
   }
 
   constructor(x, y, wid, hei, type = 0) {
     super(x, y, wid, hei);
+    this.offX = 0;
+    this.offY = 0;
+    this.offW = 0;
+    this.offH = 0;
     this.type = type;
   }
 
+  getTransformedArea() {
+    return new Area(this.x + this.offX, this.y + this.offY, this.wid + this.offW, this.hei + this.offH);
+  }
+
+  draw(can2d, cam, highlight = 0, drawUntransformed = true) {
+    if (drawUntransformed) {
+      let untransformed = cam.worldToScreenA(this);
+      can2d.fillStyle = "black"; // TODO, get color
+      can2d.globalAlpha = 0.25;
+      can2d.fillRect(untransformed.x, untransformed.y, untransformed.wid, untransformed.hei);
+      can2d.globalAlpha = 1;
+    }
+    let transformed = cam.worldToScreenA(this.getTransformedArea());
+    can2d.fillStyle = "black"; // TODO, get color
+    can2d.fillRect(transformed.x, transformed.y, transformed.wid, transformed.hei);
+    if (highlight > 0) {
+      can2d.fillStyle = "white";
+      can2d.globalAlpha = 0.25 * highlight;
+      can2d.fillRect(transformed.x, transformed.y, transformed.wid, transformed.hei);
+      can2d.globalAlpha = 1;
+    }
+  }
 }
 
 class BoundingBox extends Area {
@@ -136,26 +181,39 @@ class BoundingBox extends Area {
     if (boxes.length > 0) {
       this.active = true;
 
-      this.x = boxes.first.value.x;
-      this.y = boxes.first.value.y;
-      this.wid = boxes.first.value.wid;
-      this.hei = boxes.first.value.hei;
+      let firstTBox = boxes.first.value.getTransformedArea();
+
+      this.x = firstTBox.x;
+      this.y = firstTBox.y;
+      this.wid = firstTBox.wid;
+      this.hei = firstTBox.hei;
 
       for (let box of boxes) {
-        if (box.x < this.x) {
-          this.wid += this.x - box.x;
-          this.x = box.x;
+        let tBox = box.getTransformedArea();
+        if (tBox.x < this.x) {
+          this.wid += this.x - tBox.x;
+          this.x = tBox.x;
         }
-        if (box.y < this.y) {
-          this.hei += this.y - box.y;
-          this.y = box.y;
+        if (tBox.y < this.y) {
+          this.hei += this.y - tBox.y;
+          this.y = tBox.y;
         }
-        if (box.x + box.wid > this.x + this.wid) this.wid += box.x + box.wid - (this.x + this.wid);
-        if (box.y + box.hei > this.y + this.hei) this.hei += box.y + box.hei - (this.y + this.hei);
+        if (tBox.x + tBox.wid > this.x + this.wid) this.wid += tBox.x + tBox.wid - (this.x + this.wid);
+        if (tBox.y + tBox.hei > this.y + this.hei) this.hei += tBox.y + tBox.hei - (this.y + this.hei);
       }
     } else {
       this.active = false;
     }
+  }
+
+  isIntersectP(point) {
+    if (!this.active) return false;
+    return super.isIntersectP(point);
+  }
+
+  isIntersectA(area) {
+    if (!this.active) return false;
+    return super.isIntersectA(point);
   }
 }
 
@@ -175,14 +233,14 @@ class SelectionBox extends Area {
 
     this.active = true;
   }
-  
+
   makePositive() {
     this.x += Math.min(0, this.wid);
     this.y += Math.min(0, this.hei);
     this.wid = Math.abs(this.wid);
     this.hei = Math.abs(this.hei);
   }
-  
+
   getArea() {
     return new Area(this.x + Math.min(0, this.wid), this.y + Math.min(0, this.hei), Math.abs(this.wid), Math.abs(this.hei));
   }
@@ -205,6 +263,16 @@ class SelectionBox extends Area {
         selectionList.addElem(scene, elem);
       }
     }
+  }
+
+  isIntersectP(point) {
+    if (!this.active) return false;
+    return super.isIntersectP(point);
+  }
+  
+  isIntersectA(area) {
+    if (!this.active) return false;
+    return super.isIntersectA(area);
   }
 }
 

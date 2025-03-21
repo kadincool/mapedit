@@ -42,10 +42,15 @@ function drawFrame(can2d) {
   can2d.stroke();
   
   for (let elem of elems) {
-    can2d.fillStyle = "black";
-    if (hover.includes(elem)) can2d.fillStyle = "#3f3f3f";
-    if (selected.includes(elem)) can2d.fillStyle = "dimgray";
-    drawArea(can2d, elem);
+    let highlight = 0;
+    if (selected.includes(elem)) highlight = 2;
+    else if (hover.includes(elem)) highlight = 1;
+
+    // can2d.fillStyle = "black";
+    // if (hover.includes(elem)) can2d.fillStyle = "#3f3f3f";
+    // if (selected.includes(elem)) can2d.fillStyle = "dimgray";
+    // drawArea(can2d, elem);
+    elem.draw(can2d, cam, highlight);
   }
 
   can2d.strokeStyle = "blue";
@@ -77,12 +82,10 @@ function onClick(click) {
     startClick = click;
     click.transformByCam(cam);
     if (mainMode == 0) {
-      if (checkBitfield(click.modifiers, 0) || !(boundingBox.active && boundingBox.isIntersectP(click))) { // not in bounding box
-        // selectionBox.init(click);
-        actionMode = 0;
-      } else {
-        actionMode = 1;
-      }
+      startSelection(click);
+    }
+    if (mainMode == 1) {
+      startMove(click);
     }
   } else if (click.button == 2) {
     //Secondary click
@@ -114,27 +117,15 @@ function onMove(drag) {
   }
   if (startClick == null) {
     // not clicked
-    if (actionMode == 0) {
+    if (mainMode == 0) {
       highlightHovered(drag);
     }
   } else {
     //clicked
     if (actionMode == 0) {
-      if (!selectionBox.active) {
-        if (pointDist(startClick, drag, cam) >= 10) {
-          selectionBox.init(startClick);
-        }
-      }
-      selectionBox.scaleTo(drag);
-      highlightHovered(drag);
+      dragSelection(drag);
     } else if (actionMode == 1) {
-      for (let elem of selected) {
-        elem.x += drag.offX;
-        elem.y += drag.offY;
-      }
-      // boundingBox.x += drag.offX;
-      // boundingBox.y += drag.offY;
-      boundingBox.setBounds(selected);
+      dragMove(drag);
     } else if (actionMode == 3) {
       // console.log("hallo");
       selected.first.value.scaleTo(drag);
@@ -147,20 +138,7 @@ function onRelease(click) {
   if (startClick && click.button == startClick.button) { //ensure clicks line up
     // Primary click
     if (actionMode == 0) {
-      if (!checkBitfield(click.modifiers, 0)) selected.clearAll();
-      // TODO remove if all values are in selected
-      if (selectionBox.active) {
-        // select whole box
-        let selectionArea = selectionBox.getArea();
-        selected.appendM(elems.getAll((e) => {return selectionArea.isIntersectA(e)}));
-        selectionBox.active = false;
-      } else {
-        let topMost = elems.reverseIterate((elem) => {
-          if (click.isIntersectA(elem)) return elem;
-        });
-        if (topMost) selected.append(topMost);
-      }
-      boundingBox.setBounds(selected);
+      releaseSelection(click);
     } else if (actionMode == 1) {
       for (let elem of selected) {
         elem.snap();
@@ -174,6 +152,67 @@ function onRelease(click) {
     //Tertiary click
     pan = false;
   }
+}
+  ///////////////
+ // functions //
+///////////////
+
+// select
+function startSelection(click) {
+  if (checkBitfield(click.modifiers, 0) || !(boundingBox.active && boundingBox.isIntersectP(click))) { // not in bounding box
+    // selectionBox.init(click);
+    actionMode = 0;
+  } else {
+    actionMode = 1;
+  }
+}
+
+function dragSelection(drag) {
+  if (!selectionBox.active) {
+    if (pointDist(startClick, drag, cam) >= 10) {
+      selectionBox.init(startClick);
+    }
+  }
+  selectionBox.scaleTo(drag);
+  highlightHovered(drag);
+}
+
+function releaseSelection(click) {
+  if (!checkBitfield(click.modifiers, 0)) selected.clearAll();
+  // TODO remove if all values are in selected
+  if (selectionBox.active) {
+    // select whole box
+    let selectionArea = selectionBox.getArea();
+    selected.appendM(elems.getAll((e) => {return selectionArea.isIntersectA(e)}));
+    selectionBox.active = false;
+  } else {
+    let topMost = elems.reverseIterate((elem) => {
+      if (click.isIntersectA(elem)) return elem;
+    });
+    if (topMost) selected.append(topMost);
+  }
+  boundingBox.setBounds(selected);
+}
+
+// move
+function startMove(click) {
+  if (!boundingBox.active || !boundingBox.isIntersectP(click)) {
+    // get topmost
+    startSelection(click);
+    releaseSelection(click);
+  }
+  actionMode = 1;
+}
+
+function dragMove(drag) {
+  for (let elem of selected) {
+    elem.offX += drag.offX;
+    elem.offY += drag.offY;
+    elem.snap(false);
+  }
+  // boundingBox.x += drag.offX;
+  // boundingBox.y += drag.offY;
+  boundingBox.setBounds(selected);
 }
 
 function highlightHovered(drag) {
