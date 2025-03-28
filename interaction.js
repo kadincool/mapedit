@@ -5,7 +5,8 @@ let pan = false;
 let startClick = null;
 const modeList = ["select", "move", "scale", "make"];
 
-let ui = [];
+let ui = new UIManager();
+ui.addElem(new UIElem(10, 10, 200, 20));
 // let elems = [];
 let elems = new LinkedList();
 let selected = new LinkedList();
@@ -63,6 +64,8 @@ function drawFrame(can2d) {
   can2d.fillStyle = "white";
   // can2d.fillText(mode + ", " + mainMode + ", " + actionMode, 3, 10);
   can2d.fillText(mainMode + ", " + actionMode + ", " + JSON.stringify(startClick), 3, 10);
+
+  ui.draw(can2d);
 }
 
 function drawArea(can2d, area) {
@@ -74,8 +77,18 @@ function strokeArea(can2d, area) {
   let transformed = cam.worldToScreenA(area);
   can2d.strokeRect(transformed.x, transformed.y, transformed.wid, transformed.hei);
 }
-// URGENT TODO: make less janky
+
+// splitter
 function onClick(click) {
+  // TODO: check if clicking ui
+  if (ui.checkForClick(click)) {
+    
+  } else {
+    onWSClick(click);
+  }
+}
+
+function onWSClick(click) {
   if (click.button == 0) {
     if (startClick != null) return;
     //Primary click
@@ -233,6 +246,7 @@ function highlightHovered(drag) {
 }
 
 function zoom(amount) {
+  //TODO: make scroll into cursor position
   if (amount > 0) while (amount > 0) {
     cam.scale = Math.min(cam.scale * 2, 128);
     amount -= 500;

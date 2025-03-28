@@ -493,3 +493,40 @@ class SelectionList {
     this.indeces.push(index);
   }
 }
+
+class UIManager {
+  elems;
+
+  constructor() {
+    this.elems = [];
+  }
+
+  addElem(elem) {
+    this.elems.push(elem);
+  }
+
+  checkForClick(click) {
+    for (let elem of this.elems) {
+      if (elem.isIntersectP(click)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  draw(can2d) {
+    for (let elem of this.elems) {
+      can2d.fillStyle = elem.color;
+      can2d.fillRect(elem.x, elem.y, elem.wid, elem.hei);
+    }
+  }
+}
+
+class UIElem extends Area {
+  color;
+  
+  constructor(x, y, wid, hei, color) {
+    super(x, y, wid, hei);
+    this.color = color;
+  }
+}
