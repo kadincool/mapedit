@@ -516,8 +516,7 @@ class UIManager {
   
   draw(can2d) {
     for (let elem of this.elems) {
-      can2d.fillStyle = elem.color;
-      can2d.fillRect(elem.x, elem.y, elem.wid, elem.hei);
+      elem.draw(can2d);
     }
   }
 }
@@ -525,7 +524,12 @@ class UIManager {
 class UIElem extends Area {
   color;
   
-  constructor(x, y, wid, hei, color) {
+  draw(can2d) {
+    can2d.fillStyle = this.color;
+    can2d.fillRect(this.x, this.y, this.wid, this.hei);
+  }
+  
+  constructor(x, y, wid, hei, color = "white") {
     super(x, y, wid, hei);
     this.color = color;
   }

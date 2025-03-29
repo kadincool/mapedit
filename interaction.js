@@ -3,7 +3,7 @@ let mainMode = 0;
 let actionMode = 0;
 let pan = false;
 let startClick = null;
-const modeList = ["select", "move", "scale", "make"];
+const modeList = ["select", "move", "scale", "make", "delete"];
 
 let ui = new UIManager();
 ui.addElem(new UIElem(10, 10, 200, 20));
@@ -80,10 +80,7 @@ function strokeArea(can2d, area) {
 
 // splitter
 function onClick(click) {
-  // TODO: check if clicking ui
-  if (ui.checkForClick(click)) {
-    
-  } else {
+  if (!ui.checkForClick(click)) {
     onWSClick(click);
   }
 }
@@ -130,7 +127,7 @@ function onMove(drag) {
   }
   if (startClick == null) {
     // not clicked
-    if (mainMode == 0) {
+    if (mainMode == 0 || mainMode == 4) {
       highlightHovered(drag);
     }
   } else {
@@ -226,6 +223,50 @@ function dragMove(drag) {
   // boundingBox.x += drag.offX;
   // boundingBox.y += drag.offY;
   boundingBox.setBounds(selected);
+}
+
+function releaseMove(click) {
+  // TODO
+}
+
+function startScale(click) {
+  // TODO
+}
+
+function dragScale(drag) {
+  // TODO
+}
+
+function releaseScale(click) {
+  // TODO
+}
+
+function startAdd(click) {
+  // TODO
+}
+
+function dragAdd(drag) {
+  // TODO
+}
+
+function releaseAdd(click) {
+  // TODO
+}
+
+function startDelete(click) {
+  // TODO
+}
+
+function dragDelete(drag) {
+  // TODO
+}
+
+function releaseDelete(click) {
+  // TODO
+}
+
+function deleteSelected() {
+  // TODO
 }
 
 function highlightHovered(drag) {
