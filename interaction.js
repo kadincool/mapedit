@@ -269,6 +269,10 @@ function deleteSelected() {
   // TODO
 }
 
+function setSelectedType(type) {
+  // TODO
+}
+
 function highlightHovered(drag) {
   if (selectionBox.active) {
     let selectionArea = selectionBox.getArea();
@@ -286,7 +290,7 @@ function highlightHovered(drag) {
   }
 }
 
-function zoom(amount) {
+function zoom(amount, click) {
   //TODO: make scroll into cursor position
   if (amount > 0) while (amount > 0) {
     cam.scale = Math.min(cam.scale * 2, 128);

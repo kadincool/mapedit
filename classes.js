@@ -507,7 +507,7 @@ class UIManager {
 
   checkForClick(click) {
     for (let elem of this.elems) {
-      if (elem.isIntersectP(click)) {
+      if (elem.isClicked(click)) {
         return true;
       }
     }
@@ -524,13 +524,25 @@ class UIManager {
 class UIElem extends Area {
   color;
   
+  isClicked(click) {
+    return this.isIntersectP(click);
+  }
+  
   draw(can2d) {
     can2d.fillStyle = this.color;
     can2d.fillRect(this.x, this.y, this.wid, this.hei);
+  }
+  
+  tick(delta) {
+    // Abstract
   }
   
   constructor(x, y, wid, hei, color = "white") {
     super(x, y, wid, hei);
     this.color = color;
   }
+}
+
+class Toolbar extends UIElem {
+  elems = [];
 }

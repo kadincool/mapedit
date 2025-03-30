@@ -1,4 +1,5 @@
 function quickBitfield(...args) {
+  // TODO make quickBitfield for keyboard keys
   let out = 0;
   for (let arg of args) {
     out += out * 2 + Boolean(arg);
