@@ -343,7 +343,7 @@ class LLNode {
     if (this.next) {
       this.next.previous = this.previous;
     } else {
-      this.parent.last = this.last; 
+      this.parent.last = this.previous; 
     }
     if (this.previous) {
       this.previous.next = this.next;
@@ -387,10 +387,13 @@ class LinkedList {
 
   listAll() {
     let node = this.first;
+    let i = 0;
     while (node != null) {
       console.log(node.value);
       node = node.next;
+      i++;
     }
+    return i;
   }
   
   getAll(exp, giveNodes = false) {
@@ -409,12 +412,13 @@ class LinkedList {
     return out;
   }
   
-  appendIfNew(elem) {
-    for (let val of this) {
+  appendIfNew(elem) {// TODO: rewrite
+    /* for (let val of this) {
       if (val == elem) {
         return false;
       }
-    }
+    } */
+    if (this.contains(elem)) return false;
     this.append(elem);
     return true;
   }
@@ -422,6 +426,56 @@ class LinkedList {
   appendIfNewM(list) {
     for (let elem of list) {
       this.appendIfNew(elem);
+    }
+  }
+  
+  contains(elem) {
+    for (let val of this) {
+      if (val == elem) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  containsAll(list) {
+    for (let elem of list) {
+      if (!this.contains(elem)) return false;
+    }
+    return true;
+  }
+  
+  appendToggle(elem) {
+    /*
+    let node = this.first;
+    while (node != null) {
+      if (node.value == elem) {
+        node.splice();
+        return;
+      } else {
+        node = node.next;
+      }
+    } //*/
+    if (!this.remove(elem))
+      this.append(elem);
+  }
+  
+  remove(elem) {
+    let node = this.first;
+    while (node != null) {
+      if (node.value == elem) {
+        node.splice();
+        return true;
+      } else {
+        node = node.next;
+      }
+    }
+    return false;
+  }
+  
+  removeM(list) {
+    for (let elem of list) {
+      this.remove(elem);
     }
   }
   
@@ -474,7 +528,7 @@ class LinkedList {
   }
 }
 
-class SelectionList {
+/* class SelectionList {
   elems;
   indeces;
 
@@ -492,7 +546,7 @@ class SelectionList {
     this.elems.push(elems[index]);
     this.indeces.push(index);
   }
-}
+} */
 
 class UIManager {
   elems;

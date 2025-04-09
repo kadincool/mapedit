@@ -193,13 +193,20 @@ function releaseSelection(click) {
   if (selectionBox.active) {
     // select whole box
     let selectionArea = selectionBox.getArea();
-    selected.appendM(elems.getAll((e) => {return selectionArea.isIntersectA(e)}));
+    let selectionAdd = elems.getAll((e) => {return selectionArea.isIntersectA(e)})
+    if (selected.containsAll(selectionAdd)) {
+      // console.log("delete");
+      selected.removeM(selectionAdd);
+    } else {
+      selected.appendIfNewM(selectionAdd);
+    }
     selectionBox.active = false;
   } else {
     let topMost = elems.reverseIterate((elem) => {
       if (click.isIntersectA(elem)) return elem;
     });
-    if (topMost) selected.append(topMost);
+    // if (topMost) selected.appendIfNew(topMost);
+    if (topMost) selected.appendToggle(topMost);
   }
   boundingBox.setBounds(selected);
 }
