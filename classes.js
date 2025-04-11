@@ -613,12 +613,27 @@ class UIElem extends Area {
 
 class Toolbar extends UIElem {
   elems = ["select", "move", "scale", "make"]; // , "delete"
+  selected = 0;
   
+  getClickedSegment(click) {
+    let clickBox = new Area(this.x, this.y, this.wid, this.hei);
+    for (let i in this.elems) {
+      clickBox.wid = can2d.measureText(this.elems[i]).width + 10;
+      if (clickBox.isIntersectP(click)) {
+        return i;
+      }
+      clickBox.x += clickBox.wid;
+    }
+    return -1;
+  }
   
   isClicked(click) {
     // see which elem is clicked
-    
-    return super.isClicked(click);
+    if (!super.isClicked(click)) return false;
+    this.selected = this.getClickedSegment(click);
+    //TODO make change when value is changes otherwise
+    mainMode = this.selected; //TODO map arrays
+    return true;
   }
   
   constructor(x, y, wid, hei, color = "white") {

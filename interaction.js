@@ -101,9 +101,10 @@ function onWSClick(click) {
     click.transformByCam(cam);
     if (mainMode == 0) {
       startSelection(click);
-    }
-    if (mainMode == 1) {
+    } else if (mainMode == 1) {
       startMove(click);
+    } else if (mainMode == 2) {
+      startScale(click);
     }
   } else if (click.button == 2) {
     //Secondary click
@@ -138,6 +139,8 @@ function onWSMove(drag, isTop = true) {
       dragSelection(drag);
     } else if (actionMode == 1) {
       dragMove(drag);
+    } else if (actionMode == 2) {
+      dragScale(drag);
     } else if (actionMode == 3) {
       dragAdd(drag);
     }
@@ -152,6 +155,8 @@ function onRelease(click) {
       releaseSelection(click);
     } else if (actionMode == 1) {
       releaseMove(click)
+    } else if (actionMode == 2) {
+      releaseScale(click);
     } else if (actionMode == 3) {
       releaseAdd(click);
     }

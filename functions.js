@@ -70,14 +70,30 @@ function releaseMove(click) {
 
 function startScale(click) {
   // TODO
+  if (!boundingBox.active || !boundingBox.isIntersectP(click)) {
+    // get topmost
+    startSelection(click);
+    releaseSelection(click);
+  }
+  actionMode = 2;
 }
 
 function dragScale(drag) {
   // TODO
+  for (let elem of selected) {
+    elem.offW += drag.offX;
+    elem.offH += drag.offY;
+    elem.snap(false);
+  }
+  boundingBox.setBounds(selected);
 }
 
 function releaseScale(click) {
   // TODO
+  for (let elem of selected) {
+    elem.snap();
+  }
+  boundingBox.setBounds(selected);
 }
 
 function startAdd(click) {
@@ -93,6 +109,7 @@ function startAdd(click) {
 }
 
 function dragAdd(drag) {
+  //TODO make use scaling
   selected.first.value.scaleTo(drag);
   boundingBox.setBounds(selected);
 }
