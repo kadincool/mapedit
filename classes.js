@@ -568,6 +568,16 @@ class UIManager {
     return false;
   }
   
+  checkForDrag(drag) {
+    let out = false;
+    for (let elem of this.elems) {
+      if (elem.isDragged(drag)) {
+        out = true;
+      }
+    }
+    return out;
+  }
+  
   draw(can2d) {
     for (let elem of this.elems) {
       elem.draw(can2d);
@@ -580,6 +590,10 @@ class UIElem extends Area {
   
   isClicked(click) {
     return this.isIntersectP(click);
+  }
+  
+  isDragged(drag) {
+    return this.isIntersectP(drag);
   }
   
   draw(can2d) {
@@ -598,5 +612,41 @@ class UIElem extends Area {
 }
 
 class Toolbar extends UIElem {
-  elems = [];
+  elems = ["select", "move", "scale", "make"]; // , "delete"
+  
+  
+  isClicked(click) {
+    // see which elem is clicked
+    
+    return super.isClicked(click);
+  }
+  
+  constructor(x, y, wid, hei, color = "white") {
+    super(x, y, wid, hei, color);
+  }
+  
+  setWidth() {
+    can2d.font = "16px Courier New";
+    can2d.textAlign = "left";
+    can2d.textBaseline = "middle";
+    let width = 0;
+    for (let i = 0; i < this.elems.length; i++) {
+      width += can2d.measureText(this.elems[i]).width + 10;
+    }
+    this.wid = width;
+  }
+  
+  draw(can2d) {
+    super.draw(can2d);
+    this.setWidth();
+    can2d.fillStyle = "black";
+    can2d.font = "16px Courier New";
+    can2d.textAlign = "left";
+    can2d.textBaseline = "middle";
+    let added = 5;
+    for (let i = 0; i < this.elems.length; i++) {
+      can2d.fillText(this.elems[i], this.x + added, this.y + this.hei / 2);
+      added += can2d.measureText(this.elems[i]).width + 10;
+    }
+  }
 }
