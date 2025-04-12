@@ -105,14 +105,21 @@ function onWSClick(click) {
       startMove(click);
     } else if (mainMode == 2) {
       startScale(click);
+    } else if (mainMode == 3) {
+      startAdd(click);
     }
   } else if (click.button == 2) {
     //Secondary click
     if (startClick != null) return;
     click.transformByCam(cam);
     startClick = click;
-    
-    startAdd(click);
+    if (mainMode == 1) {
+      startScale(click);
+    } else if (mainMode == 2) {
+      startMove(click);
+    } else {
+      startAdd(click);
+    }
   } else if (click.button == 1) {
     //Tertiary click
     pan = true;
