@@ -1,6 +1,6 @@
 // let mode = 0;
 let mainMode = 0;
-let actionMode = 0;
+let actionMode = -1;
 let pan = false;
 let startClick = null;
 const modeList = ["select", "move", "scale", "make", "delete"];
@@ -21,12 +21,12 @@ let clicked = false;
 // elems.push(new Box(0, 1, 20, 1));
 // elems.push(new Box(0, 2, 20, 1));
 // elems.push(new Box(0, 3, 20, 1));
-elems.append(new Box(0, 0, 20, 1));
+/*elems.append(new Box(0, 0, 20, 1));
 elems.append(new Box(0, 2, 20, 1));
 elems.append(new Box(0, 4, 20, 1));
-elems.append(new Box(0, 6, 20, 1));
+elems.append(new Box(0, 6, 20, 1));*/
 
-
+// TODO add way to change box color
 function drawFrame(can2d) {
   can2d.fillStyle = "lightGray";
   can2d.fillRect(0, 0, can2d.canvas.width, can2d.canvas.height);
@@ -66,7 +66,7 @@ function drawFrame(can2d) {
   can2d.textAlign = "start";
   can2d.textBaseline = "alphabetic";
   // can2d.fillText(mode + ", " + mainMode + ", " + actionMode, 3, 10);
-  can2d.fillText(mainMode + ", " + actionMode + ", " + JSON.stringify(startClick), 3, 10);
+  // can2d.fillText(mainMode + ", " + actionMode + ", " + JSON.stringify(startClick), 3, 10);
 
   ui.draw(can2d);
 }
@@ -113,12 +113,14 @@ function onWSClick(click) {
     if (startClick != null) return;
     click.transformByCam(cam);
     startClick = click;
-    if (mainMode == 1) {
+    if (mainMode == 0) {
+      startAdd(click);
+    } else if (mainMode == 1) {
       startScale(click);
     } else if (mainMode == 2) {
       startMove(click);
-    } else {
-      startAdd(click);
+    } else if (mainMode == 3) {
+      startSelection(click);
     }
   } else if (click.button == 1) {
     //Tertiary click
@@ -137,7 +139,7 @@ function onWSMove(drag, isTop = true) {
   }
   if (startClick == null) {
     // not clicked
-    if (mainMode == 0 || mainMode == 4) {
+    if ((mainMode == 0 || mainMode == 4) && isTop) {
       highlightHovered(drag);
     }
   } else {
@@ -172,4 +174,5 @@ function onRelease(click) {
     //Tertiary click
     pan = false;
   }
+  actionMode = -1; // prevent bugs
 }

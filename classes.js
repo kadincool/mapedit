@@ -661,8 +661,10 @@ class Toolbar extends UIElem {
       bgBox.wid = can2d.measureText(this.elems[i]).width + 10;
     }
     can2d.fillStyle = "lightGray";
+    can2d.strokeStyle = "gray"
+    can2d.lineWidth = 2;
     can2d.fillRect(bgBox.x, bgBox.y, bgBox.wid, bgBox.hei);
-    //can2d.strokeRect(bgBox.x, bgBox.y, bgBox.wid, bgBox.hei);
+    can2d.strokeRect(bgBox.x, bgBox.y, bgBox.wid, bgBox.hei);
     // draw text
     can2d.fillStyle = "black";
     can2d.font = "16px Courier New";

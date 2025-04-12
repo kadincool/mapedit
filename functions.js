@@ -1,5 +1,6 @@
 // select
 function startSelection(click) {
+  // TODO make reselect if topmost isnt in selected
   if (checkBitfield(click.modifiers, 0) || !(boundingBox.active && boundingBox.isIntersectP(click))) { // not in bounding box
     // selectionBox.init(click);
     actionMode = 0;
@@ -20,7 +21,6 @@ function dragSelection(drag) {
 
 function releaseSelection(click) {
   if (!checkBitfield(click.modifiers, 0)) selected.clearAll();
-  // TODO remove if all values are in selected
   if (selectionBox.active) {
     // select whole box
     let selectionArea = selectionBox.getArea();
@@ -69,7 +69,6 @@ function releaseMove(click) {
 }
 
 function startScale(click) {
-  // TODO
   if (!boundingBox.active || !boundingBox.isIntersectP(click)) {
     // get topmost
     startSelection(click);
@@ -79,7 +78,7 @@ function startScale(click) {
 }
 
 function dragScale(drag) {
-  // TODO
+  // TODO make show size when scaling
   for (let elem of selected) {
     elem.offW += drag.offX;
     elem.offH += drag.offY;
@@ -89,7 +88,6 @@ function dragScale(drag) {
 }
 
 function releaseScale(click) {
-  // TODO
   for (let elem of selected) {
     elem.snap();
   }
@@ -104,20 +102,22 @@ function startAdd(click) {
   selected.clearAll();
   selected.append(box);
   // perform move action
-  dragAdd(click);
-  //selected.first.value.scaleTo(click);
+  // dragAdd(click);
+  selected.first.value.scaleTo(click);
 }
 
 function dragAdd(drag) {
-  //TODO make use scaling
-  selected.first.value.scaleTo(drag);
-  boundingBox.setBounds(selected);
+  //selected.first.value.scaleTo(drag);
+  //boundingBox.setBounds(selected);
+  dragScale(drag);
 }
 
 function releaseAdd(click) {
-  dragAdd(click);
-  selected.first.value.snap();
-  boundingBox.setBounds(selected);
+  // TODO delete invis objects
+  releaseScale(click);
+  //dragAdd(click);
+  //selected.first.value.snap();
+  //boundingBox.setBounds(selected);
 }
 
 function startDelete(click) {
