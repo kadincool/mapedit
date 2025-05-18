@@ -626,13 +626,17 @@ class Toolbar extends UIElem {
     }
     return -1;
   }
+
+  setClickedSegment() {
+    this.selected = this.elems.indexOf(modeList[mainMode]);
+  }
   
   isClicked(click) {
     // see which elem is clicked
     if (!super.isClicked(click)) return false;
     this.selected = this.getClickedSegment(click);
     //TODO make change when value is changes otherwise
-    mainMode = this.selected; //TODO map arrays
+    mainMode = modeList.indexOf(this.elems[this.selected]);
     return true;
   }
   
@@ -676,4 +680,8 @@ class Toolbar extends UIElem {
       added += can2d.measureText(this.elems[i]).width + 10;
     }
   }
+}
+
+class colorBar extends Toolbar {
+  
 }
