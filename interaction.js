@@ -5,8 +5,12 @@ let pan = false;
 let startClick = null;
 const modeList = ["select", "move", "scale", "make", "delete"];
 
+let colors = ["black", "red", "blue"];
+let currentColor = 0;
+
 let ui = new UIManager();
 ui.addElem(new Toolbar(10, 10, 200, 20));
+ui.addElem(new ColorBar(10, 40, 200, 20));
 // let elems = [];
 let elems = new LinkedList();
 let selected = new LinkedList();

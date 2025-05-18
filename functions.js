@@ -97,7 +97,7 @@ function releaseScale(click) {
 function startAdd(click) {
   actionMode = 3;
   // make a box and make it selected
-  let box = new Box(Math.round(click.x), Math.round(click.y), 0, 0);
+  let box = new Box(Math.round(click.x), Math.round(click.y), 0, 0, currentColor);
   elems.append(box);
   selected.clearAll();
   selected.append(box);
@@ -113,7 +113,7 @@ function dragAdd(drag) {
 }
 
 function releaseAdd(click) {
-  // TODO delete invis objects
+  deleteTiny();
   releaseScale(click);
   //dragAdd(click);
   //selected.first.value.snap();
@@ -133,7 +133,35 @@ function releaseDelete(click) {
 }
 
 function deleteSelected() {
-  // TODO
+  for (let elem of selected) {
+    elem.wid = 0;
+    elem.hei = 0;
+  }
+  deleteTiny();
+}
+
+function deleteTiny() {
+  let node = elems.first;
+  while (node) {
+    let next = node.next; // keep track of the next one while we consider deleting this one
+    let val = node.value;
+    if (val.wid == 0 || val.hei == 0) {
+      node.splice();
+    }
+    node = next;
+  }
+
+  // repeat for selected
+  node = selected.first;
+  while (node) {
+    let next = node.next; // keep track of the next one while we consider deleting this one
+    let val = node.value;
+    if (val.wid == 0 || val.hei == 0) {
+      node.splice();
+    }
+    node = next;
+  }
+  boundingBox.setBounds(selected);
 }
 
 function duplicateSelected() {

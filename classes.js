@@ -150,13 +150,14 @@ class Box extends Area {
   draw(can2d, cam, highlight = 0, drawUntransformed = true) {
     if (drawUntransformed) {
       let untransformed = cam.worldToScreenA(this);
-      can2d.fillStyle = "black"; // TODO, get color
+      can2d.fillStyle = colors[this.type];
       can2d.globalAlpha = 0.25;
       can2d.fillRect(untransformed.x, untransformed.y, untransformed.wid, untransformed.hei);
       can2d.globalAlpha = 1;
     }
+    // Should this be an else?
     let transformed = cam.worldToScreenA(this.getTransformedArea());
-    can2d.fillStyle = "black"; // TODO, get color
+    can2d.fillStyle = colors[this.type];
     can2d.fillRect(transformed.x, transformed.y, transformed.wid, transformed.hei);
     if (highlight > 0) {
       can2d.fillStyle = "white";
@@ -612,8 +613,15 @@ class UIElem extends Area {
 }
 
 class Toolbar extends UIElem {
-  elems = ["select", "move", "scale", "make"]; // , "delete"
-  selected = 0;
+  elems = modeList;
+
+  get selected() {
+    return mainMode;
+  }
+
+  set selected(x) {
+    mainMode = x;
+  }
   
   getClickedSegment(click) {
     let clickBox = new Area(this.x, this.y, this.wid, this.hei);
@@ -627,17 +635,22 @@ class Toolbar extends UIElem {
     return -1;
   }
 
-  setClickedSegment() {
-    this.selected = this.elems.indexOf(modeList[mainMode]);
-  }
+  // setClickedSegment() {
+  //   this.selected = this.elems.indexOf(modeList[mainMode]);
+  // }
   
   isClicked(click) {
     // see which elem is clicked
     if (!super.isClicked(click)) return false;
     this.selected = this.getClickedSegment(click);
+    this.afterChange();
     //TODO make change when value is changes otherwise
-    mainMode = modeList.indexOf(this.elems[this.selected]);
+    // mainMode = modeList.indexOf(this.elems[this.selected]);
     return true;
+  }
+
+  afterChange() {
+    // abstract
   }
   
   constructor(x, y, wid, hei, color = "white") {
@@ -654,11 +667,16 @@ class Toolbar extends UIElem {
     }
     this.wid = width;
   }
+
+  drawBox(can2d) {
+    super.draw(can2d);
+  }
   
   draw(can2d) {
     super.draw(can2d);
     this.setWidth();
     // draw background box
+    can2d.font = "16px Courier New";
     let bgBox = new Area(this.x, this.y, 0, this.hei);
     for (let i = 0; i <= this.selected; i++) {
       bgBox.x += bgBox.wid;
@@ -682,6 +700,73 @@ class Toolbar extends UIElem {
   }
 }
 
-class colorBar extends Toolbar {
+class ColorBar extends Toolbar {
+  elems = colors;
+  elemWid = 50;
+
+  get selected() {
+    return currentColor;
+  }
+
+  set selected(x) {
+    currentColor = x;
+  }
+
+  afterChange() {
+    for (let elem of selected) {
+      elem.type = currentColor;
+    }
+  }
+
+  getClickedSegment(click) {
+    let clickBox = new Area(this.x, this.y, this.wid, this.hei);
+    for (let i in this.elems) {
+      clickBox.wid = this.elemWid;
+      if (clickBox.isIntersectP(click)) {
+        return i;
+      }
+      clickBox.x += clickBox.wid;
+    }
+    return -1;
+  }
   
+  setWidth() {
+    // can2d.font = "16px Courier New";
+    // can2d.textAlign = "left";
+    // can2d.textBaseline = "middle";
+    // let width = 0;
+    let width = this.elems.length * this.elemWid;
+    // for (let i = 0; i < this.elems.length; i++) {
+    //   width += can2d.measureText(this.elems[i]).width + 10;
+    // }
+    this.wid = width;
+  }
+
+  draw(can2d) {
+    super.drawBox(can2d);
+    this.setWidth();
+    // draw background box
+    // for (let i = 0; i <= this.selected; i++) {
+    //   bgBox.x += bgBox.wid;
+    //   bgBox.wid = 100;
+    // }
+    for (let i = 0; i < this.elems.length; i++) {
+      // can2d.fillText(this.elems[i], this.x + added, this.y + this.hei / 2);
+      // added += this.elemWid;
+      can2d.fillStyle = this.elems[i];
+      can2d.fillRect(this.x + i * this.elemWid, this.y, this.elemWid, this.hei);
+    }
+    let bgBox = new Area(this.x + this.elemWid * this.selected, this.y, this.elemWid, this.hei);
+    can2d.fillStyle = "lightGray";
+    can2d.strokeStyle = this.elems[this.selected];
+    can2d.lineWidth = 10;
+    // can2d.fillRect(bgBox.x, bgBox.y, bgBox.wid, bgBox.hei);
+    can2d.strokeRect(bgBox.x, bgBox.y, bgBox.wid, bgBox.hei);
+    // // draw text
+    // can2d.fillStyle = "black";
+    // can2d.font = "16px Courier New";
+    // can2d.textAlign = "left";
+    // can2d.textBaseline = "middle";
+    // let added = 5;
+  }
 }
