@@ -92,6 +92,7 @@ function releaseScale(click) {
     elem.snap();
   }
   boundingBox.setBounds(selected);
+  deleteTiny();
 }
 
 function startAdd(click) {
@@ -113,8 +114,8 @@ function dragAdd(drag) {
 }
 
 function releaseAdd(click) {
-  deleteTiny();
   releaseScale(click);
+  deleteTiny();
   //dragAdd(click);
   //selected.first.value.snap();
   //boundingBox.setBounds(selected);
@@ -169,6 +170,16 @@ function duplicateSelected() {
 }
 
 function setSelectedType(type) {
+  for (let elem of selected) {
+    elem.type = type;
+  }
+}
+
+function selectedToBottom() {
+  // TODO
+}
+
+function selectedToTop() {
   // TODO
 }
 
@@ -191,6 +202,8 @@ function highlightHovered(drag) {
 
 function zoom(amount, click) {
   //TODO: make scroll into cursor position
+  cam.x += click.x / cam.scale;
+  cam.y += click.y / cam.scale;
   if (amount > 0) while (amount > 0) {
     cam.scale = Math.min(cam.scale * 2, 128);
     amount -= 500;
@@ -199,4 +212,6 @@ function zoom(amount, click) {
     cam.scale = Math.max(cam.scale / 2, 0.25);
     amount += 500;
   }
+  cam.x -= click.x / cam.scale;
+  cam.y -= click.y / cam.scale;
 }

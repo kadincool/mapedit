@@ -30,5 +30,8 @@ document.addEventListener("mousemove", (e) => {
   onMove(new Drag(e.offsetX, e.offsetY, e.movementX, e.movementY, e.button, quickBitfield(keys.ControlLeft)));
 });
 
-document.addEventListener("keydown", (e) => {keys[e.code] = true});
+document.addEventListener("keydown", (e) => {
+  keys[e.code] = true;
+  keybind(e.code);
+});
 document.addEventListener("keyup", (e) => {keys[e.code] = false});

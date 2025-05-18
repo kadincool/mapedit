@@ -605,6 +605,15 @@ class UIElem extends Area {
   tick(delta) {
     // Abstract
   }
+
+  setSize() {
+    // Abstract
+  }
+
+  getRight() {
+    this.setSize();
+    return this.x + this.wid;
+  }
   
   constructor(x, y, wid, hei, color = "white") {
     super(x, y, wid, hei);
@@ -638,6 +647,10 @@ class Toolbar extends UIElem {
   // setClickedSegment() {
   //   this.selected = this.elems.indexOf(modeList[mainMode]);
   // }
+
+  isClickedBox(click) {
+    return super.isClicked(click);
+  }
   
   isClicked(click) {
     // see which elem is clicked
@@ -657,7 +670,7 @@ class Toolbar extends UIElem {
     super(x, y, wid, hei, color);
   }
   
-  setWidth() {
+  setSize() {
     can2d.font = "16px Courier New";
     can2d.textAlign = "left";
     can2d.textBaseline = "middle";
@@ -674,10 +687,10 @@ class Toolbar extends UIElem {
   
   draw(can2d) {
     super.draw(can2d);
-    this.setWidth();
+    this.setSize();
     // draw background box
-    can2d.font = "16px Courier New";
     let bgBox = new Area(this.x, this.y, 0, this.hei);
+    can2d.font = "16px Courier New";
     for (let i = 0; i <= this.selected; i++) {
       bgBox.x += bgBox.wid;
       bgBox.wid = can2d.measureText(this.elems[i]).width + 10;
@@ -713,9 +726,7 @@ class ColorBar extends Toolbar {
   }
 
   afterChange() {
-    for (let elem of selected) {
-      elem.type = currentColor;
-    }
+    setSelectedType(currentColor);
   }
 
   getClickedSegment(click) {
@@ -730,7 +741,7 @@ class ColorBar extends Toolbar {
     return -1;
   }
   
-  setWidth() {
+  setSize() {
     // can2d.font = "16px Courier New";
     // can2d.textAlign = "left";
     // can2d.textBaseline = "middle";
@@ -744,7 +755,7 @@ class ColorBar extends Toolbar {
 
   draw(can2d) {
     super.drawBox(can2d);
-    this.setWidth();
+    this.setSize();
     // draw background box
     // for (let i = 0; i <= this.selected; i++) {
     //   bgBox.x += bgBox.wid;
@@ -768,5 +779,75 @@ class ColorBar extends Toolbar {
     // can2d.textAlign = "left";
     // can2d.textBaseline = "middle";
     // let added = 5;
+  }
+}
+
+class Options extends Toolbar {
+  elems = ["add", "remove", "change"];
+  parent = null;
+
+  constructor(x, y, wid, hei, color = "white", parent = null) {
+    super(x, y, wid, hei, color);
+    this.parent = parent;
+  }
+  
+  isClicked(click) {
+    // see which elem is clicked
+    if (!super.isClickedBox(click)) return false;
+    this.performAction(this.getClickedSegment(click));
+    //TODO make change when value is changes otherwise
+    // mainMode = modeList.indexOf(this.elems[this.selected]);
+    return true;
+  }
+
+  performAction(index) {
+    if (index == 0) {
+      let color = prompt("Enter Color:");
+      if (color === null || color === "") {
+        return;
+      }
+      colors.push(color);
+    }
+    if (index == 1) {
+      if (confirm(`Delete color ${colors[currentColor]}?`))
+      colors.splice(currentColor, 1);
+    currentColor -= 1;
+    }
+    if (index == 2) {
+      let color = prompt(`Enter new Color (from ${colors[currentColor]}):`);
+      if (color === null || color === "") {
+        return;
+      }
+      colors[currentColor] = color;
+    }
+  }
+
+  setSize() {
+    this.x = this.parent.getRight() + 10;
+    this.y = this.parent.y;
+
+    can2d.font = "16px Courier New";
+    can2d.textAlign = "left";
+    can2d.textBaseline = "middle";
+    let width = 0;
+    for (let i = 0; i < this.elems.length; i++) {
+      width += can2d.measureText(this.elems[i]).width + 10;
+    }
+    this.wid = width;
+  }
+  
+  draw(can2d) {
+    super.drawBox(can2d);
+    this.setSize();
+    // draw text
+    can2d.fillStyle = "black";
+    can2d.font = "16px Courier New";
+    can2d.textAlign = "left";
+    can2d.textBaseline = "middle";
+    let added = 5;
+    for (let i = 0; i < this.elems.length; i++) {
+      can2d.fillText(this.elems[i], this.x + added, this.y + this.hei / 2);
+      added += can2d.measureText(this.elems[i]).width + 10;
+    }
   }
 }

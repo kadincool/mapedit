@@ -10,7 +10,9 @@ let currentColor = 0;
 
 let ui = new UIManager();
 ui.addElem(new Toolbar(10, 10, 200, 20));
-ui.addElem(new ColorBar(10, 40, 200, 20));
+let colorBar = new ColorBar(10, 40, 200, 20);
+ui.addElem(colorBar);
+ui.addElem(new Options(10, 40, 200, 20, "white", colorBar));
 // let elems = [];
 let elems = new LinkedList();
 let selected = new LinkedList();
@@ -179,4 +181,12 @@ function onRelease(click) {
     pan = false;
   }
   actionMode = -1; // prevent bugs
+}
+
+function keybind(key) {
+  switch (key) {
+    case "Delete":
+      deleteSelected();
+      break;
+  }
 }
