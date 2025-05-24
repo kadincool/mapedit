@@ -788,7 +788,7 @@ class ColorBar extends Toolbar {
 }
 
 class Options extends Toolbar {
-  elems = ["add(+)", "remove(-)", "change"]; // TODO add keybinds
+  elems = ["add(+)", "remove(-)", "change(`)"];
   parent = null;
 
   constructor(x, y, wid, hei, parent = null) {

@@ -249,6 +249,9 @@ function keybind(key) {
     case "Minus":
       deleteColor();
       break;
+    case "Backquote":
+      changeColor();
+      break;
     case "Digit1":
     case "Numpad1":
       currentColor = 0;
