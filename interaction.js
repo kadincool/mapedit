@@ -5,7 +5,7 @@ let pan = false;
 let startClick = null;
 const modeList = ["select", "move", "scale", "make", "remove"];
 
-let colors = ["black", "red", "blue"];
+let colors = ["#000000", "#ff0000", "#0000ff"];
 let currentColor = 0;
 
 let ui = new UIManager();
@@ -34,7 +34,6 @@ elems.append(new Box(0, 2, 20, 1));
 elems.append(new Box(0, 4, 20, 1));
 elems.append(new Box(0, 6, 20, 1));*/
 
-// TODO add way to change box color
 function drawFrame(can2d) {
   checkColorIntegrety();
 
@@ -79,7 +78,7 @@ function drawFrame(can2d) {
     can2d.textBaseline = "top";
     let text = `(${Math.round(boundingBox.x)}, ${Math.round(boundingBox.y)}), ${Math.round(boundingBox.wid)} x ${Math.round(boundingBox.hei)}`;
     if (selected.length == 1) {
-      text += `, ${colors[selected.first.value.type]}`; // TODO make select color when element is selected
+      text += `, ${colors[selected.first.value.type]}`;
     } else {
       text += `, ${selected.length}`;
     }
@@ -120,6 +119,7 @@ function onClick(click) {
 function onMove(drag) {
   let topMost = !ui.checkForDrag(drag);
   onWSMove(drag, topMost);
+  if (!perFrame) frame();
 }
 
 function onWSClick(click) {
@@ -163,6 +163,8 @@ function onWSMove(drag, isTop = true) {
   if (pan) {
     cam.x -= drag.offX;
     cam.y -= drag.offY;
+    cam.x = roundToPrec(cam.x, 1/cam.scale); //snap to remove gaps
+    cam.y = roundToPrec(cam.y, 1/cam.scale);
     drag.offX = 0;
     drag.offY = 0;
   }
@@ -204,6 +206,7 @@ function onRelease(click) {
     //Tertiary click
     pan = false;
   }
+  frame();
 }
 
 function keybind(key) {
@@ -222,6 +225,9 @@ function keybind(key) {
     case "PageUp":
       selectedToTop();
       break;
+    case "KeyD":
+      duplicateSelected();
+      break;
     case "KeyQ":
       mainMode = 0;
       break;
@@ -237,35 +243,52 @@ function keybind(key) {
     case "KeyT":
       mainMode = 4;
       break;
+    case "Equal":
+      addColor();
+      break
+    case "Minus":
+      deleteColor();
+      break;
     case "Digit1":
+    case "Numpad1":
       currentColor = 0;
       break;
     case "Digit2":
+    case "Numpad2":
       currentColor = 1;
       break;
     case "Digit3":
+    case "Numpad3":
       currentColor = 2;
       break;
     case "Digit4":
+    case "Numpad4":
       currentColor = 3;
       break;
     case "Digit5":
+    case "Numpad5":
       currentColor = 4;
       break;
     case "Digit6":
+    case "Numpad6":
       currentColor = 5;
       break;
     case "Digit7":
+    case "Numpad7":
       currentColor = 6;
       break;
     case "Digit8":
+    case "Numpad8":
       currentColor = 7;
       break;
     case "Digit9":
+    case "Numpad9":
       currentColor = 8;
       break;
     case "Digit0":
-      currentColor = 9;
+    case "Numpad0":
+      currentColor = colors.length;
       break;
   }
+  frame();
 }

@@ -7,19 +7,28 @@ function frame() {
   if (canvas.width != window.innerWidth) canvas.width = window.innerWidth;
   if (canvas.height != window.innerHeight) canvas.height = window.innerHeight;
   drawFrame(can2d);
-  requestAnimationFrame(frame);
 }
 frame();
+
+let perFrame = false;
+function frameLoop() {
+  if (perFrame) frame();
+  requestAnimationFrame(frameLoop);
+
+}
+frameLoop();
 
 document.addEventListener("mousedown", (e) => {
   e.preventDefault();
   onClick(new Click(e.offsetX, e.offsetY, e.button, quickBitfield(keys.ControlLeft)));
   // frame();
+  perFrame = true;
 });
 
 document.addEventListener("mouseup", (e) => {
   onRelease(new Click(e.offsetX, e.offsetY, e.button, quickBitfield(keys.ControlLeft)));
   // frame();
+  perFrame = false;
 });
 
 document.addEventListener("wheel", (e) => {

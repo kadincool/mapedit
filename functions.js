@@ -1,6 +1,5 @@
 // select
 function startSelection(click) {
-  // TODO make reselect if topmost isnt in selected
   if (checkBitfield(click.modifiers, 0) || !(boundingBox.active && boundingBox.isIntersectP(click)) || !selected.containsAll(hover)) { // not in bounding box
     // selectionBox.init(click);
     actionMode = 0;
@@ -38,6 +37,9 @@ function releaseSelection(click) {
     if (topMost) selected.appendToggle(topMost);
   }
   boundingBox.setBounds(selected);
+  if (selected.length == 1) {
+    currentColor = selected.first.value.type;
+  }
 }
 
 // move
@@ -78,7 +80,6 @@ function startScale(click) {
 }
 
 function dragScale(drag) {
-  // TODO make show size when scaling
   for (let elem of selected) {
     elem.offW += drag.offX;
     elem.offH += drag.offY;
@@ -134,11 +135,14 @@ function releaseDelete(click) {
 }
 
 function deleteSelected() {
-  for (let elem of selected) { // TODO change maybe
-    elem.wid = 0;
-    elem.hei = 0;
-  }
-  deleteTiny();
+  // for (let elem of selected) {
+  //   elem.wid = 0;
+  //   elem.hei = 0;
+  // }
+  // deleteTiny();
+  elems.removeM(selected);
+  selected.clearAll();
+  boundingBox.setBounds(selected);
 }
 
 function deleteTiny() {
@@ -169,9 +173,12 @@ function duplicateSelected() {
   // TODO remember to shift down one
   let toAdd = []
   for (let elem of selected) {
-    toAdd.push(new Box(elem.x, elem.y, elem.wid, elem.hei, elem.type));
+    toAdd.push(new Box(elem.x + 1, elem.y + 1, elem.wid, elem.hei, elem.type));
   }
-  console.log(toAdd);
+  elems.appendM(toAdd);
+  selected.clearAll();
+  selected.appendM(toAdd);
+  boundingBox.setBounds(selected);
 }
 
 function setSelectedType(type) {
@@ -219,8 +226,36 @@ function zoom(amount, click) {
   }
   cam.x -= click.x / cam.scale;
   cam.y -= click.y / cam.scale;
+  cam.x = roundToPrec(cam.x, 1/cam.scale); //snap to remove gaps
+  cam.y = roundToPrec(cam.y, 1/cam.scale);
+  frame();
 }
 
 function checkColorIntegrety() {
   if (currentColor >= colors.length) currentColor = colors.length - 1;
+}
+
+function addColor() {
+  let color = prompt("Enter Color:");
+  if (color === null || color === "") {
+    return;
+  }
+  colors.push(color);
+  currentColor = colors.length - 1;
+  setSelectedType(currentColor);
+}
+
+function deleteColor() {
+  if (confirm(`Delete color ${colors[currentColor]}?`)) { // TODO expand majorly, eg make colors collapse
+    colors.splice(currentColor, 1);
+    currentColor -= 1;
+  }
+}
+
+function changeColor() {
+  let color = prompt(`Enter new Color (from ${colors[currentColor]}):`);
+  if (color === null || color === "") {
+    return;
+  }
+  colors[currentColor] = color;
 }

@@ -36,7 +36,7 @@ class Point {
   }
 
   isIntersectP(point) {
-    // TODO
+    return this.x == point.x && this.y == point.y;
   }
 
   isIntersectA(area) {
@@ -419,12 +419,7 @@ class LinkedList {
     return out;
   }
   
-  appendIfNew(elem) {// TODO: rewrite
-    /* for (let val of this) {
-      if (val == elem) {
-        return false;
-      }
-    } */
+  appendIfNew(elem) {
     if (this.contains(elem)) return false;
     this.append(elem);
     return true;
@@ -663,8 +658,6 @@ class Toolbar extends UIElem {
     if (!super.isClicked(click)) return false;
     this.selected = this.getClickedSegment(click);
     this.afterChange();
-    //TODO make change when value is changes otherwise
-    // mainMode = modeList.indexOf(this.elems[this.selected]);
     return true;
   }
 
@@ -692,8 +685,8 @@ class Toolbar extends UIElem {
   }
   
   draw(can2d) {
-    super.draw(can2d);
     this.setSize();
+    super.draw(can2d);
     // draw background box
     let bgBox = new Area(this.x, this.y, 0, this.hei);
     can2d.font = "16px Courier New";
@@ -760,8 +753,8 @@ class ColorBar extends Toolbar {
   }
 
   draw(can2d) {
-    super.drawBox(can2d);
     this.setSize();
+    super.drawBox(can2d);
     // draw background box
     // for (let i = 0; i <= this.selected; i++) {
     //   bgBox.x += bgBox.wid;
@@ -795,7 +788,7 @@ class ColorBar extends Toolbar {
 }
 
 class Options extends Toolbar {
-  elems = ["add", "remove", "change"];
+  elems = ["add(+)", "remove(-)", "change"]; // TODO add keybinds
   parent = null;
 
   constructor(x, y, wid, hei, parent = null) {
@@ -814,26 +807,13 @@ class Options extends Toolbar {
 
   performAction(index) {
     if (index == 0) {
-      let color = prompt("Enter Color:");
-      if (color === null || color === "") {
-        return;
-      }
-      colors.push(color);
-      currentColor = color - 1;
-      setSelectedType(currentColor);
+      addColor();
     }
     if (index == 1) {
-      if (confirm(`Delete color ${colors[currentColor]}?`)) { // TODO expand majorly
-        colors.splice(currentColor, 1);
-        currentColor -= 1;
-      }
+      deleteColor();
     }
     if (index == 2) {
-      let color = prompt(`Enter new Color (from ${colors[currentColor]}):`);
-      if (color === null || color === "") {
-        return;
-      }
-      colors[currentColor] = color;
+      changeColor();
     }
   }
 
@@ -852,8 +832,8 @@ class Options extends Toolbar {
   }
   
   draw(can2d) {
-    super.drawBox(can2d);
     this.setSize();
+    super.drawBox(can2d);
     // draw text
     can2d.fillStyle = "black";
     can2d.font = "16px Courier New";
@@ -868,7 +848,7 @@ class Options extends Toolbar {
 }
 
 class EditOptions extends Options {
-  elems = ["export", "import", "delete(DEL)", "top(PGUP)", "bottom(PGDN)"];
+  elems = ["export", "import", "delete(DEL)", "top(PGUP)", "bottom(PGDN)", "duplicate(D)"];
   performAction(index) {
     if (index == 0) {
       let map = exportMap();
@@ -887,6 +867,9 @@ class EditOptions extends Options {
     }
     if (index == 4) {
       selectedToBottom();
+    }
+    if (index == 5) {
+      duplicateSelected();
     }
   }
 }

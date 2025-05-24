@@ -1,5 +1,4 @@
 function quickBitfield(...args) {
-  // TODO make quickBitfield for keyboard keys
   let out = 0;
   for (let arg of args) {
     out += out * 2 + Boolean(arg);
@@ -46,9 +45,11 @@ function importMap(str) {
   let obj = JSON.parse(str);
   // console.log(obj);
   // colors = obj.colors;
-  colors.splice(0, colors.length, ...obj.colors);
-  elems.clearAll();
-  for (let i = 0; i < obj.boxes.length - 4; i += 5) {
-    elems.append(new Box(obj.boxes[i + 1], obj.boxes[i + 2], obj.boxes[i + 3], obj.boxes[i + 4], obj.boxes[i]));
+  if (obj.colors) colors.splice(0, colors.length, ...obj.colors);
+  if (obj.boxes) {
+    elems.clearAll();
+    for (let i = 0; i < obj.boxes.length - 4; i += 5) {
+      elems.append(new Box(obj.boxes[i + 1], obj.boxes[i + 2], obj.boxes[i + 3], obj.boxes[i + 4], obj.boxes[i]));
+    }
   }
 }
