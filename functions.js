@@ -1,7 +1,7 @@
 // select
 function startSelection(click) {
   // TODO make reselect if topmost isnt in selected
-  if (checkBitfield(click.modifiers, 0) || !(boundingBox.active && boundingBox.isIntersectP(click))) { // not in bounding box
+  if (checkBitfield(click.modifiers, 0) || !(boundingBox.active && boundingBox.isIntersectP(click)) || !selected.containsAll(hover)) { // not in bounding box
     // selectionBox.init(click);
     actionMode = 0;
   } else {
@@ -134,7 +134,7 @@ function releaseDelete(click) {
 }
 
 function deleteSelected() {
-  for (let elem of selected) {
+  for (let elem of selected) { // TODO change maybe
     elem.wid = 0;
     elem.hei = 0;
   }
@@ -167,6 +167,11 @@ function deleteTiny() {
 
 function duplicateSelected() {
   // TODO remember to shift down one
+  let toAdd = []
+  for (let elem of selected) {
+    toAdd.push(new Box(elem.x, elem.y, elem.wid, elem.hei, elem.type));
+  }
+  console.log(toAdd);
 }
 
 function setSelectedType(type) {
@@ -176,11 +181,13 @@ function setSelectedType(type) {
 }
 
 function selectedToBottom() {
-  // TODO
+  elems.removeM(selected);
+  elems.prependM(selected);
 }
 
 function selectedToTop() {
-  // TODO
+  elems.removeM(selected);
+  elems.appendM(selected);
 }
 
 function highlightHovered(drag) {
@@ -195,13 +202,11 @@ function highlightHovered(drag) {
     let topMost = elems.reverseIterate((elem) => {
       if (drag.isIntersectA(elem)) return elem;
     });
-    // console.log(topMost);
     if (topMost) hover.append(topMost);
   }
 }
 
 function zoom(amount, click) {
-  //TODO: make scroll into cursor position
   cam.x += click.x / cam.scale;
   cam.y += click.y / cam.scale;
   if (amount > 0) while (amount > 0) {
@@ -214,4 +219,8 @@ function zoom(amount, click) {
   }
   cam.x -= click.x / cam.scale;
   cam.y -= click.y / cam.scale;
+}
+
+function checkColorIntegrety() {
+  if (currentColor >= colors.length) currentColor = colors.length - 1;
 }

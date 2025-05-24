@@ -3,16 +3,18 @@ let mainMode = 0;
 let actionMode = -1;
 let pan = false;
 let startClick = null;
-const modeList = ["select", "move", "scale", "make", "delete"];
+const modeList = ["select", "move", "scale", "make", "remove"];
 
 let colors = ["black", "red", "blue"];
 let currentColor = 0;
 
 let ui = new UIManager();
-ui.addElem(new Toolbar(10, 10, 200, 20));
+let modeBar = new Toolbar(10, 10, 200, 20);
+ui.addElem(modeBar);
+ui.addElem(new EditOptions(10, 40, 200, 20, modeBar));
 let colorBar = new ColorBar(10, 40, 200, 20);
 ui.addElem(colorBar);
-ui.addElem(new Options(10, 40, 200, 20, "white", colorBar));
+ui.addElem(new Options(10, 40, 200, 20, colorBar));
 // let elems = [];
 let elems = new LinkedList();
 let selected = new LinkedList();
@@ -34,6 +36,8 @@ elems.append(new Box(0, 6, 20, 1));*/
 
 // TODO add way to change box color
 function drawFrame(can2d) {
+  checkColorIntegrety();
+
   can2d.fillStyle = "lightGray";
   can2d.fillRect(0, 0, can2d.canvas.width, can2d.canvas.height);
 
@@ -63,17 +67,36 @@ function drawFrame(can2d) {
   can2d.strokeStyle = "blue";
   can2d.lineWidth = 2;
   // if (boundingBox.active) can2d.strokeRect(boundingBox.x, boundingBox.y, boundingBox.wid, boundingBox.hei);
-  if (boundingBox.active) strokeArea(can2d, boundingBox);
+  
+  if (boundingBox.active) {
+    strokeArea(can2d, boundingBox);
+    let boundPos = cam.worldToScreenP(boundingBox);
+    can2d.fillStyle = "white";
+    can2d.strokeStyle = "black";
+    can2d.lineWidth = 3;
+    can2d.font = "16px sans-serif";
+    can2d.textAlign = "start";
+    can2d.textBaseline = "top";
+    let text = `(${Math.round(boundingBox.x)}, ${Math.round(boundingBox.y)}), ${Math.round(boundingBox.wid)} x ${Math.round(boundingBox.hei)}`;
+    if (selected.length == 1) {
+      text += `, ${colors[selected.first.value.type]}`; // TODO make select color when element is selected
+    } else {
+      text += `, ${selected.length}`;
+    }
+    can2d.strokeText(text, boundPos.x + 3, boundPos.y + 3);
+    can2d.fillText(text, boundPos.x + 3, boundPos.y + 3);
+  }
+  can2d.strokeStyle = "blue";
+  can2d.lineWidth = 2;
   if (selectionBox.active) strokeArea(can2d, selectionBox);
   // strokeArea(can2d, selectionBox);
 
-  can2d.fillStyle = "white";
-  can2d.font = "10px sans-serif";
-  can2d.textAlign = "start";
-  can2d.textBaseline = "alphabetic";
+  // can2d.fillStyle = "white";
+  // can2d.font = "10px sans-serif";
+  // can2d.textAlign = "start";
+  // can2d.textBaseline = "alphabetic";
   // can2d.fillText(mode + ", " + mainMode + ", " + actionMode, 3, 10);
   // can2d.fillText(mainMode + ", " + actionMode + ", " + JSON.stringify(startClick), 3, 10);
-
   ui.draw(can2d);
 }
 
@@ -176,17 +199,73 @@ function onRelease(click) {
       releaseAdd(click);
     }
     startClick = null;
+    actionMode = -1; // prevent bugs
   } else if (click.button == 1) {
     //Tertiary click
     pan = false;
   }
-  actionMode = -1; // prevent bugs
 }
 
 function keybind(key) {
   switch (key) {
     case "Delete":
       deleteSelected();
+      break;
+    case "Home":
+      cam.x = 0;
+      cam.y = 0;
+      cam.scale = 32;
+      break;
+    case "PageDown":
+      selectedToBottom();
+      break;
+    case "PageUp":
+      selectedToTop();
+      break;
+    case "KeyQ":
+      mainMode = 0;
+      break;
+    case "KeyW":
+      mainMode = 1;
+      break;
+    case "KeyE":
+      mainMode = 2;
+      break;
+    case "KeyR":
+      mainMode = 3;
+      break;
+    case "KeyT":
+      mainMode = 4;
+      break;
+    case "Digit1":
+      currentColor = 0;
+      break;
+    case "Digit2":
+      currentColor = 1;
+      break;
+    case "Digit3":
+      currentColor = 2;
+      break;
+    case "Digit4":
+      currentColor = 3;
+      break;
+    case "Digit5":
+      currentColor = 4;
+      break;
+    case "Digit6":
+      currentColor = 5;
+      break;
+    case "Digit7":
+      currentColor = 6;
+      break;
+    case "Digit8":
+      currentColor = 7;
+      break;
+    case "Digit9":
+      currentColor = 8;
+      break;
+    case "Digit0":
+      currentColor = 9;
       break;
   }
 }

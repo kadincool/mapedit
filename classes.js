@@ -379,6 +379,12 @@ class LinkedList {
   append(elem) {
     new LLNode(elem).appendE(this);
   }
+
+  prependM(list) {
+    for (let elem of list) {
+      this.prepend(elem);
+    }
+  }
   
   appendM(list) {
     for (let elem of list) {
@@ -491,7 +497,7 @@ class LinkedList {
     }
     this.first = null;
     this.last = null;
-    if (this.length != 0) console.error("something may have gone wrong");
+    if (this.length != 0) console.error("something has gone wrong");
   }
 
   includes(elem) {
@@ -622,7 +628,7 @@ class UIElem extends Area {
 }
 
 class Toolbar extends UIElem {
-  elems = modeList;
+  elems = ["select(Q)", "move(W)", "scale(E)", "make(R)", "remove(T)"];
 
   get selected() {
     return mainMode;
@@ -718,11 +724,11 @@ class ColorBar extends Toolbar {
   elemWid = 50;
 
   get selected() {
-    return currentColor;
+    return Number(currentColor);
   }
 
   set selected(x) {
-    currentColor = x;
+    currentColor = Number(x);
   }
 
   afterChange() {
@@ -768,17 +774,23 @@ class ColorBar extends Toolbar {
       can2d.fillRect(this.x + i * this.elemWid, this.y, this.elemWid, this.hei);
     }
     let bgBox = new Area(this.x + this.elemWid * this.selected, this.y, this.elemWid, this.hei);
-    can2d.fillStyle = "lightGray";
-    can2d.strokeStyle = this.elems[this.selected];
-    can2d.lineWidth = 10;
-    // can2d.fillRect(bgBox.x, bgBox.y, bgBox.wid, bgBox.hei);
-    can2d.strokeRect(bgBox.x, bgBox.y, bgBox.wid, bgBox.hei);
-    // // draw text
-    // can2d.fillStyle = "black";
-    // can2d.font = "16px Courier New";
-    // can2d.textAlign = "left";
-    // can2d.textBaseline = "middle";
-    // let added = 5;
+    if (currentColor >= 0 && currentColor < colors.length) {
+      can2d.fillStyle = "lightGray";
+      can2d.strokeStyle = this.elems[this.selected];
+      can2d.lineWidth = 10;
+      // can2d.fillRect(bgBox.x, bgBox.y, bgBox.wid, bgBox.hei);
+      can2d.strokeRect(bgBox.x, bgBox.y, bgBox.wid, bgBox.hei);
+      // draw text
+      can2d.fillStyle = "white";
+      can2d.strokeStyle = "black";
+      can2d.lineWidth = 3;
+      can2d.font = "12px Courier New";
+      can2d.textAlign = "center";
+      can2d.textBaseline = "middle";
+      let text = colors[this.selected];
+      can2d.strokeText(text, this.x + (this.selected + 0.5) * this.elemWid, this.y + this.hei / 2);
+      can2d.fillText(text, this.x + (this.selected + 0.5) * this.elemWid, this.y + this.hei / 2);
+    }
   }
 }
 
@@ -786,8 +798,8 @@ class Options extends Toolbar {
   elems = ["add", "remove", "change"];
   parent = null;
 
-  constructor(x, y, wid, hei, color = "white", parent = null) {
-    super(x, y, wid, hei, color);
+  constructor(x, y, wid, hei, parent = null) {
+    super(x, y, wid, hei, "white");
     this.parent = parent;
   }
   
@@ -807,11 +819,14 @@ class Options extends Toolbar {
         return;
       }
       colors.push(color);
+      currentColor = color - 1;
+      setSelectedType(currentColor);
     }
     if (index == 1) {
-      if (confirm(`Delete color ${colors[currentColor]}?`))
-      colors.splice(currentColor, 1);
-    currentColor -= 1;
+      if (confirm(`Delete color ${colors[currentColor]}?`)) { // TODO expand majorly
+        colors.splice(currentColor, 1);
+        currentColor -= 1;
+      }
     }
     if (index == 2) {
       let color = prompt(`Enter new Color (from ${colors[currentColor]}):`);
@@ -848,6 +863,30 @@ class Options extends Toolbar {
     for (let i = 0; i < this.elems.length; i++) {
       can2d.fillText(this.elems[i], this.x + added, this.y + this.hei / 2);
       added += can2d.measureText(this.elems[i]).width + 10;
+    }
+  }
+}
+
+class EditOptions extends Options {
+  elems = ["export", "import", "delete(DEL)", "top(PGUP)", "bottom(PGDN)"];
+  performAction(index) {
+    if (index == 0) {
+      let map = exportMap();
+      alert(map);
+    }
+    if (index == 1) {
+      let input = prompt();
+      if (input !== null && input !== "")
+        importMap(input);
+    }
+    if (index == 2) {
+      deleteSelected();
+    }
+    if (index == 3) {
+      selectedToTop();
+    }
+    if (index == 4) {
+      selectedToBottom();
     }
   }
 }
