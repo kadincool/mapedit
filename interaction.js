@@ -136,6 +136,8 @@ function onWSClick(click) {
       startScale(click);
     } else if (mainMode == 3) {
       startAdd(click);
+    } else if (mainMode == 4) {
+      startDelete(click);
     }
   } else if (click.button == 2) {
     //Secondary click
@@ -150,6 +152,8 @@ function onWSClick(click) {
       startMove(click);
     } else if (mainMode == 3) {
       startSelection(click);
+    } else if (mainMode == 4) {
+      startMove(click);
     }
   } else if (click.button == 1) {
     //Tertiary click
@@ -183,6 +187,8 @@ function onWSMove(drag, isTop = true) {
       dragScale(drag);
     } else if (actionMode == 3) {
       dragAdd(drag);
+    } else if (actionMode == 4) {
+      dragDelete(drag);
     }
   }
 }
@@ -199,6 +205,8 @@ function onRelease(click) {
       releaseScale(click);
     } else if (actionMode == 3) {
       releaseAdd(click);
+    } else if (actionMode == 4) {
+      releaseDelete(click);
     }
     startClick = null;
     actionMode = -1; // prevent bugs

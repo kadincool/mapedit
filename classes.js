@@ -623,7 +623,7 @@ class UIElem extends Area {
 }
 
 class Toolbar extends UIElem {
-  elems = ["select(Q)", "move(W)", "scale(E)", "make(R)", "remove(T)"];
+  elems = ["select(Q)", "move(W)", "scale(E)", "make(R)", "remove(T)", "rearrange(</>)"];
 
   get selected() {
     return mainMode;
@@ -800,8 +800,6 @@ class Options extends Toolbar {
     // see which elem is clicked
     if (!super.isClickedBox(click)) return false;
     this.performAction(this.getClickedSegment(click));
-    //TODO make change when value is changes otherwise
-    // mainMode = modeList.indexOf(this.elems[this.selected]);
     return true;
   }
 

@@ -123,15 +123,40 @@ function releaseAdd(click) {
 }
 
 function startDelete(click) {
-  // TODO
+  if (boundingBox.active && boundingBox.isIntersectP(click)) { // in bounding box
+    deleteSelected();
+    actionMode = -1;
+  } else {
+    selected.clearAll();
+    boundingBox.active = false;
+    actionMode = 4;
+  }
 }
 
 function dragDelete(drag) {
-  // TODO
+  if (!selectionBox.active) {
+    if (pointDist(startClick, drag, cam) >= 10) {
+      selectionBox.init(startClick);
+    }
+  }
+  selectionBox.scaleTo(drag);
+  highlightHovered(drag);
 }
 
 function releaseDelete(click) {
-  // TODO
+  if (selectionBox.active) {
+    let selectionArea = selectionBox.getArea();
+    let selectionAdd = elems.getAll((e) => {return selectionArea.isIntersectA(e)});
+    selected.appendM(selectionAdd);
+    deleteSelected();
+    selectionBox.active = false;
+  } else {
+    let topMost = elems.reverseIterate((elem) => {
+      if (click.isIntersectA(elem)) return elem;
+    });
+    if (topMost) elems.remove(topMost);
+  }
+  boundingBox.active = false;
 }
 
 function deleteSelected() {
@@ -170,7 +195,6 @@ function deleteTiny() {
 }
 
 function duplicateSelected() {
-  // TODO remember to shift down one
   let toAdd = []
   for (let elem of selected) {
     toAdd.push(new Box(elem.x + 1, elem.y + 1, elem.wid, elem.hei, elem.type));
@@ -233,6 +257,7 @@ function zoom(amount, click) {
 
 function checkColorIntegrety() {
   if (currentColor >= colors.length) currentColor = colors.length - 1;
+  if (currentColor < 0) currentColor = 0;
 }
 
 function addColor() {
@@ -246,9 +271,14 @@ function addColor() {
 }
 
 function deleteColor() {
-  if (confirm(`Delete color ${colors[currentColor]}?`)) { // TODO expand majorly, eg make colors collapse
+  if (confirm(`Delete color ${colors[currentColor]}?`)) {
     colors.splice(currentColor, 1);
+    for (let elem of elems) { // collapse colors
+      if (elem.type >= currentColor) elem.type -= 1;
+      if (elem.type < 0) elem.type = 0;
+    }
     currentColor -= 1;
+    // checkColorIntegrety();
   }
 }
 
@@ -258,4 +288,8 @@ function changeColor() {
     return;
   }
   colors[currentColor] = color;
+}
+
+function rearrangeColor(from, to) {
+  // TODO
 }
