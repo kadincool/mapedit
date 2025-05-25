@@ -260,6 +260,18 @@ function keybind(key) {
     case "Backquote":
       changeColor();
       break;
+    case "ArrowLeft":
+      rearrangeColor(currentColor, currentColor - 1);
+      break;
+    case "ArrowRight":
+      rearrangeColor(currentColor, currentColor + 1);
+      break;
+    case "Comma":
+      currentColor -= 1;
+      break;
+    case "Period":
+      currentColor += 1;
+      break;
     case "Digit1":
     case "Numpad1":
       currentColor = 0;

@@ -291,5 +291,20 @@ function changeColor() {
 }
 
 function rearrangeColor(from, to) {
-  // TODO
+  if (from >= colors.length || from < 0) return;
+  if (to >= colors.length || to < 0) return;
+  let color = colors.splice(from, 1)[0];
+  colors.splice(to, 0, color);
+  for (let elem of elems) { // collapse colors
+    if (to > from) {
+      if (elem.type == from) {elem.type = to; continue}
+      if (elem.type > to) continue;
+      if (elem.type > from) elem.type -= 1;
+    } else if (from > to) {
+      if (elem.type == from) {elem.type = to; continue}
+      if (elem.type > from) continue;
+      if (elem.type >= to) elem.type += 1;
+    }
+  }
+  currentColor = to;
 }

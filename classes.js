@@ -623,7 +623,7 @@ class UIElem extends Area {
 }
 
 class Toolbar extends UIElem {
-  elems = ["select(Q)", "move(W)", "scale(E)", "make(R)", "remove(T)", "rearrange(</>)"];
+  elems = ["select(Q)", "move(W)", "scale(E)", "make(R)", "remove(T)"];
 
   get selected() {
     return mainMode;
@@ -788,7 +788,7 @@ class ColorBar extends Toolbar {
 }
 
 class Options extends Toolbar {
-  elems = ["add(+)", "remove(-)", "change(`)"];
+  elems = ["add(+)", "remove(-)", "change(`)", "rearrange(</>)"];
   parent = null;
 
   constructor(x, y, wid, hei, parent = null) {
@@ -812,6 +812,11 @@ class Options extends Toolbar {
     }
     if (index == 2) {
       changeColor();
+    }
+    if (index == 3) {
+      let input = prompt(`Index to move to (from ${currentColor})`);
+      if (input !== null && input !== "")
+        rearrangeColor(currentColor, Number(input));
     }
   }
 
